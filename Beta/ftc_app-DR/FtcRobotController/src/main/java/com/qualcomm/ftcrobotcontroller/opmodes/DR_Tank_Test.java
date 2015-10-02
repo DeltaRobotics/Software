@@ -1,23 +1,30 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.graphics.Color;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.ftccommon.DbgLog;
+import com.qualcomm.ftcrobotcontroller.R;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 /**
  * Created by steve.brooks on 9/30/2015.
  */
 public class DR_Tank_Test extends OpMode {
 
+    ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
-    TouchSensor touchSensor;
-    Servo servo1;
+    //TouchSensor touchSensor;
+   // Servo servo1;
 
-    double servo1Position;
-    double servo1Delta;
+   // double servo1Position;
+    //double servo1Delta;
 
     public DR_Tank_Test() {
 
@@ -27,17 +34,21 @@ public class DR_Tank_Test extends OpMode {
         motorRight = hardwareMap.dcMotor.get ("Drive_Right");
         motorLeft = hardwareMap.dcMotor.get ("Drive_Left");
         motorRight.setDirection(DcMotor.Direction.REVERSE);
-        touchSensor = hardwareMap.touchSensor.get ("touchSensor");
-        servo1 = hardwareMap.servo.get ("servo1");
+        sensorRGB = hardwareMap.colorSensor.get("colorSensor");
+        sensorRGB.enableLed(true);
+        //float hsvValues = {0F, 0F, 0F};
+        //final float values[] = hsvValues;
+        //touchSensor = hardwareMap.touchSensor.get ("touchSensor");
+       // servo1 = hardwareMap.servo.get ("servo1");
 
-        servo1Position = 0.2;
-        servo1Delta = 0.1;
+       // servo1Position = 0.2;
+        //servo1Delta = 0.1;
     }
     public void loop() {
         float throttlel = gamepad1.left_stick_y;
         float throttler = gamepad1.right_stick_y;
         throttlel = Range.clip (throttlel, -1, 1);
-        throttler = Range.clip (throttler, -1, 1);
+        throttler = Range.clip(throttler, -1, 1);
 
         throttlel = (float)scaleInput(throttlel);
         throttler = (float)scaleInput(throttler);
@@ -45,18 +56,29 @@ public class DR_Tank_Test extends OpMode {
         motorLeft.setPower(throttlel);
         motorRight.setPower(throttler);
 
-        servo1.setPosition(servo1Position);
+
+        //servo1.setPosition(servo1Position);
 
 
-        if (touchSensor.isPressed()) {
-            servo1Position += servo1Delta;
-        }
+       // if (touchSensor.isPressed()) {
+       //     servo1Position += servo1Delta;
+      //  }
+        // convert the RGB values to HSV values.
+        //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
+        //Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
+
+        // send the info back to driver station using telemetry function.
+        telemetry.addData("Clear", sensorRGB.alpha());
+        telemetry.addData("Red  ", sensorRGB.red());
+        telemetry.addData("Green", sensorRGB.green());
+        telemetry.addData("Blue ", sensorRGB.blue());
+        //telemetry.addData("Hue", hsvValues[0]);
 
         telemetry.addData("Left Motor Power:"
                 , +motorLeft.getPower());
         telemetry.addData("Right Motor Power:"
                ,  +motorRight.getPower());
-        telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
+        //telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
     }
     double scaleInput(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
