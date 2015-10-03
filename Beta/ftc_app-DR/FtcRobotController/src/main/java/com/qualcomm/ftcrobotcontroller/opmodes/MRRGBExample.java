@@ -64,7 +64,7 @@ public class MRRGBExample extends LinearOpMode {
     hardwareMap.logDevices();
 
     // get a reference to our ColorSensor object.
-    sensorRGB = hardwareMap.colorSensor.get("colorSensor");
+    sensorRGB = hardwareMap.colorSensor.get("Color_Sensor");
 
     // bEnabled represents the state of the LED.
     boolean bEnabled = true;
@@ -100,7 +100,7 @@ public class MRRGBExample extends LinearOpMode {
 
       //check the status of the x button on either gamepad.
       bCurrState = gamepad1.x || gamepad2.x;
-      sensorRGB.enableLed(bEnabled);
+      //sensorRGB.enableLed(bEnabled);
 
       // check for button state transitions.
       /* if (bCurrState == true && bCurrState != bPrevState)  {
@@ -130,15 +130,17 @@ public class MRRGBExample extends LinearOpMode {
         bEnabled = false;
 
         // turn off the LED.
-        sensorRGB.enableLed(false);
+        */
+        sensorRGB.enableLed(gamepad1.x);
 
-*/
+
       // convert the RGB values to HSV values.
       //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
-      Color.RGBToHSV(sensorRGB.red()*8, sensorRGB.green()*8, sensorRGB.blue()*8, hsvValues);
+      Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
 
       // send the info back to driver station using telemetry function.
       telemetry.addData("X Button", gamepad1.x);
+        telemetry.addData("Object Reference ", sensorRGB.toString());
       telemetry.addData("Clear", sensorRGB.alpha());
       telemetry.addData("Red  ", sensorRGB.red());
       telemetry.addData("Green", sensorRGB.green());

@@ -70,6 +70,7 @@ public class FtcOpModeRegister implements OpModeRegister {
     //manager.register("ColorSensorDriver", ColorSensorDriver.class);
     //manager.register("HTRGBExample", HTRGBExample.class);
 
+    manager.register("DR_Tank", DR_Tank_Test.class);
     //manager.register("IrSeekerOp", IrSeekerOp.class);
     //manager.register("CompassCalibration", CompassCalibration.class);
     //manager.register("I2cAddressChangeExample", LinearI2cAddressChange.class);

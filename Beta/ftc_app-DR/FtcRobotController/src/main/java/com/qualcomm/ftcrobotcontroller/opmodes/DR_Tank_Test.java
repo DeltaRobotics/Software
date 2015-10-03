@@ -34,7 +34,7 @@ public class DR_Tank_Test extends OpMode {
         motorRight = hardwareMap.dcMotor.get ("Drive_Right");
         motorLeft = hardwareMap.dcMotor.get ("Drive_Left");
         motorRight.setDirection(DcMotor.Direction.REVERSE);
-        sensorRGB = hardwareMap.colorSensor.get("colorSensor");
+        sensorRGB = hardwareMap.colorSensor.get("Color_Sensor");
         sensorRGB.enableLed(true);
         //float hsvValues = {0F, 0F, 0F};
         //final float values[] = hsvValues;
@@ -68,6 +68,7 @@ public class DR_Tank_Test extends OpMode {
         //Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
 
         // send the info back to driver station using telemetry function.
+        telemetry.addData("Object Reference ", motorRight.toString());
         telemetry.addData("Clear", sensorRGB.alpha());
         telemetry.addData("Red  ", sensorRGB.red());
         telemetry.addData("Green", sensorRGB.green());
