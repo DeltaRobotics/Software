@@ -98,7 +98,7 @@ public class MRRGBExample extends LinearOpMode {
     // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
     while (opModeIsActive()) {
 
-      // check the status of the x button on either gamepad.
+      //check the status of the x button on either gamepad.
       bCurrState = gamepad1.x || gamepad2.x;
       sensorRGB.enableLed(bEnabled);
 
