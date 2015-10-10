@@ -94,6 +94,9 @@ public class MRRGBExample extends LinearOpMode {
     boolean bPrevState = false;
     boolean bCurrState = false;
 
+    float ColorCompare;
+    float RvsB;
+
     // while the op mode is active, loop and read the RGB data.
     // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
     while (opModeIsActive()) {
@@ -138,14 +141,38 @@ public class MRRGBExample extends LinearOpMode {
       //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
       Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
 
-      // send the info back to driver station using telemetry function.
-      telemetry.addData("X Button", gamepad1.x);
-        telemetry.addData("Object Reference ", sensorRGB.toString());
+
+      RvsB = Math.abs(sensorRGB.blue() - sensorRGB.red());
+
+      if (RvsB >= 2 && sensorRGB.red() > sensorRGB.blue())
+      {
+        telemetry.addData("RED!", sensorRGB.red());
+      }
+      else if (RvsB >= 2 && sensorRGB.blue() > sensorRGB.red())
+      {
+        telemetry.addData("BLUE!", sensorRGB.blue());
+      }
+      else
+      {
+        telemetry.addData("No Color Found -- Object Reference", sensorRGB.toString());
+        telemetry.addData("Clear", sensorRGB.alpha());
+        telemetry.addData("Red  ", sensorRGB.red());
+        telemetry.addData("Green", sensorRGB.green());
+        telemetry.addData("Blue ", sensorRGB.blue());
+        telemetry.addData("Hue", hsvValues[0]);
+      }
+
+
+      // send the infoaback to driver station using telemetry function.
+      /*telemetry.addData("x button pressed", gamepad1.x);
+      telemetry.addData("Object Reference ", sensorRGB.toString());
       telemetry.addData("Clear", sensorRGB.alpha());
       telemetry.addData("Red  ", sensorRGB.red());
       telemetry.addData("Green", sensorRGB.green());
       telemetry.addData("Blue ", sensorRGB.blue());
-      telemetry.addData("Hue", hsvValues[0]);
+      telemetry.addData("Hue", hsvValues[0]); */
+
+
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument
       // to the HSVToColor method.
@@ -159,5 +186,6 @@ public class MRRGBExample extends LinearOpMode {
       // wait a hardware cycle before iterating.
       waitOneFullHardwareCycle();
     }
+
   }
 //}

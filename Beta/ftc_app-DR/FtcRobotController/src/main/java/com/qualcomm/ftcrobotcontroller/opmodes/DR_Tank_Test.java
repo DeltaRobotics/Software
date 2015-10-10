@@ -1,6 +1,8 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -20,6 +22,7 @@ public class DR_Tank_Test extends OpMode {
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
+    SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
     //TouchSensor touchSensor;
    // Servo servo1;
 
@@ -60,25 +63,28 @@ public class DR_Tank_Test extends OpMode {
         //servo1.setPosition(servo1Position);
 
 
-       // if (touchSensor.isPressed()) {
-       //     servo1Position += servo1Delta;
-      //  }
+        // if (touchSensor.isPressed()) {
+        //     servo1Position += servo1Delta;
+        //  }
         // convert the RGB values to HSV values.
         //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
         //Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
 
         // send the info back to driver station using telemetry function.
-        telemetry.addData("Object Reference ", motorRight.toString());
-        telemetry.addData("Clear", sensorRGB.alpha());
-        telemetry.addData("Red  ", sensorRGB.red());
-        telemetry.addData("Green", sensorRGB.green());
-        telemetry.addData("Blue ", sensorRGB.blue());
+        //telemetry.addData("Object Reference ", motorRight.toString());
+        //telemetry.addData("Clear", sensorRGB.alpha());
+        //telemetry.addData("Red  ", sensorRGB.red());
+        //telemetry.addData("Green", sensorRGB.green());
+        //telemetry.addData("Blue ", sensorRGB.blue());
         //telemetry.addData("Hue", hsvValues[0]);
 
-        telemetry.addData("Left Motor Power:"
-                , +motorLeft.getPower());
-        telemetry.addData("Right Motor Power:"
-               ,  +motorRight.getPower());
+        telemetry.addData("Left Drive: "
+                ,	+ motorLeft.getPower ()
+                    + motorLeft.getCurrentPosition());
+
+        telemetry.addData("Right Drive:"
+               ,    + motorRight.getPower()
+                    + motorRight.getCurrentPosition());
         //telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
     }
     double scaleInput(double dVal) {
