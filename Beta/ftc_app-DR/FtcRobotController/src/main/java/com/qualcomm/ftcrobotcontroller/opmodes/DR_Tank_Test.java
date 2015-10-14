@@ -2,10 +2,13 @@ package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,11 +22,19 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
  */
 public class DR_Tank_Test extends OpMode {
 
+    private static final float NS2S = 1.0f / 1000000000.0f;
+    private final float[] deltaRotationVector = new float[4];
+    private float timestamp;
+
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
+    //Initialize the Gyro Sensor
     SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-    //TouchSensor touchSensor;
+    {
+        Sensor Gyro_Sensor = sensorService.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+    }
+//TouchSensor touchSensor;
    // Servo servo1;
 
    // double servo1Position;
@@ -46,7 +57,46 @@ public class DR_Tank_Test extends OpMode {
 
        // servo1Position = 0.2;
         //servo1Delta = 0.1;
+
     }
+
+    public void onSensorChanged(SensorEvent event) { //when sensor changes, calculate
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+
+        if (timestamp != 0) {
+            final float dT = (event.timestamp - timestamp) * NS2S; //set dT (change in time)
+            //Find the un-normalized value of the rotation sample - pulled from an array.
+            float axisX = event.values[0];
+            float axisY = event.values[1];
+            float axisZ = event.values[2];
+            //Calculate the angular speed
+            float omegaMagnitude = (float) Math.sqrt(axisX * axisX + axisY * axisY + axisZ * axisZ);
+            //Normalize the rotation vector (epsilon - max value allowed)
+            if (omegaMagnitude > 1.0) {
+                axisX /= omegaMagnitude;
+                axisY /= omegaMagnitude;
+                axisZ /= omegaMagnitude;
+            }
+            float thetaOverTwo = omegaMagnitude * dT / 2.0f;
+            float sinThetaOverTwo = (float) Math.sin(thetaOverTwo);
+            float cosThetaOverTwo = (float) Math.cos(thetaOverTwo);
+            deltaRotationVector[0] = sinThetaOverTwo * axisX;
+            deltaRotationVector[1] = sinThetaOverTwo * axisY;
+            deltaRotationVector[2] = sinThetaOverTwo * axisZ;
+            deltaRotationVector[3] = cosThetaOverTwo;
+        }
+
+        }
+        timestamp = event.timestamp;
+        float[] deltaRotationMatrix = new float[9];
+        SensorManager.getRotationMatrixFromVector(deltaRotationMatrix, deltaRotationVector);
+
+        telemetry.addData("X-Axis", deltaRotationMatrix[0]);
+        telemetry.addData("Y-Axis", deltaRotationMatrix[1]);
+        telemetry.addData("Z-Axis", deltaRotationMatrix[2]);
+
+
+        }
     public void loop() {
         float throttlel = gamepad1.left_stick_y;
         float throttler = gamepad1.right_stick_y;
@@ -58,6 +108,8 @@ public class DR_Tank_Test extends OpMode {
 
         motorLeft.setPower(throttlel);
         motorRight.setPower(throttler);
+
+
 
 
         //servo1.setPosition(servo1Position);
@@ -77,6 +129,8 @@ public class DR_Tank_Test extends OpMode {
         //telemetry.addData("Green", sensorRGB.green());
         //telemetry.addData("Blue ", sensorRGB.blue());
         //telemetry.addData("Hue", hsvValues[0]);
+
+
 
         telemetry.addData("Left Drive: "
                 ,	+ motorLeft.getPower ()
