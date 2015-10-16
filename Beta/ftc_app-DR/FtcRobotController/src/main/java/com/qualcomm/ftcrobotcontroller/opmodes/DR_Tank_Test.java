@@ -34,7 +34,6 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public float deltaZMax = 0;
     public float lastX, lastY, lastZ;
 
-
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
