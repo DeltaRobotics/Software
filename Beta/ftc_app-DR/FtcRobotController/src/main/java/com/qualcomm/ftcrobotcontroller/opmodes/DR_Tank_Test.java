@@ -37,7 +37,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
-    //Initialize the Accelerometer
+    //Initialize the Accelerometer_
     SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
     {
         Sensor Accelerometer = sensorService.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
