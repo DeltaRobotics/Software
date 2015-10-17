@@ -6,6 +6,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.hardware.SensorEventListener;
+import android.os.Handler;
+import android.os.HandlerThread;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.AccelerationSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -23,9 +25,6 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
  */
 public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
-    public SensorManager mSensorManager;
-    public Sensor Accelerometer;
-
     public float deltaX = 0;
     public float deltaY = 0;
     public float deltaZ = 0;
@@ -33,16 +32,21 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public float deltaYMax = 0;
     public float deltaZMax = 0;
     public float lastX, lastY, lastZ;
+    public float accelX = 0;
+    public float accelY = 0;
+    public float accelZ = 0;
+    public float gyroX = 0;
+    public float gyroY = 0;
+    public float gyroZ = 0;
 
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
     //Initialize the Accelerometer_
-    SensorManager sensorService = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
-    {
-        Sensor Accelerometer = sensorService.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        SensorManager.registerListener(this, Accelerometer , SensorManager.SENSOR_DELAY_NORMAL);
-    }
+    private SensorManager mSensorManager;
+    private Sensor accelerometer;
+
+    private Sensor gyroscope;
 
 //TouchSensor touchSensor;
    // Servo servo1;
@@ -68,6 +72,14 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
        // servo1Position = 0.2;
         //servo1Delta = 0.1;
 
+        mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
+        accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+
+    }
+
+    public void start() {
+        mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
    /* public void onSensorChanged(SensorEvent event) { //when sensor changes, calculate
         if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
@@ -115,13 +127,13 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         throttlel = Range.clip (throttlel, -1, 1);
         throttler = Range.clip(throttler, -1, 1);
 
-        throttlel = (float)scaleInput(throttlel);
+        throttlel = (float) scaleInput(throttlel);
         throttler = (float) scaleInput(throttler);
 
         motorLeft.setPower(throttlel);
         motorRight.setPower(throttler);
 
-        onSensorChanged();
+
         //servo1.setPosition(servo1Position);
 
 
@@ -149,21 +161,32 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         telemetry.addData("Right Drive:"
                ,    + motorRight.getPower()
                     + motorRight.getCurrentPosition());
+        telemetry.addData("X Accelerometer", accelX);
+        telemetry.addData("Y Accelerometer", accelY);
+        telemetry.addData("Z Accelerometer", accelZ);
+
         //telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
     }
 @Override
         public void onSensorChanged(SensorEvent event) {
-            // get the change of the x,y,z values of the accelerometer
-            deltaX = Math.abs(lastX - event.values[0]);
-            deltaY = Math.abs(lastY - event.values[1]);
-            deltaZ = Math.abs(lastZ - event.values[2]);
-            // if the change is below 2, it is just plain noise
-            if (deltaX < 2)
-                deltaX = 0;
-            if (deltaY < 2)
-                deltaY = 0;
-            if (deltaZ < 2)
-                deltaZ = 0;
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                // get the change of the x,y,z values of the accelerometer
+                deltaX = Math.abs(lastX - event.values[0]);
+                deltaY = Math.abs(lastY - event.values[1]);
+                deltaZ = Math.abs(lastZ - event.values[2]);
+                // if the change is below 2, it is just plain noise
+                if (deltaX < 2)
+                    deltaX = 0;
+                if (deltaY < 2)
+                    deltaY = 0;
+                if (deltaZ < 2)
+                    deltaZ = 0;
+
+                accelX = deltaX;
+                accelY = deltaY;
+                accelZ = deltaZ;
+            }
+
         }
     double scaleInput(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
