@@ -6,12 +6,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.hardware.SensorEventListener;
-import android.os.Handler;
-import android.os.HandlerThread;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.AccelerationSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.GyroSensor;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,6 +15,7 @@ import com.qualcomm.ftccommon.DbgLog;
 import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 
 /**
  * Created by steve.brooks on 9/30/2015.
@@ -28,25 +25,18 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public float deltaX = 0;
     public float deltaY = 0;
     public float deltaZ = 0;
-    public float deltaXMax = 0;
-    public float deltaYMax = 0;
-    public float deltaZMax = 0;
     public float lastX, lastY, lastZ;
     public float accelX = 0;
     public float accelY = 0;
     public float accelZ = 0;
-    public float gyroX = 0;
-    public float gyroY = 0;
-    public float gyroZ = 0;
 
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
-    //Initialize the Accelerometer_
+    //Initialize the Accelerometer
     private SensorManager mSensorManager;
     private Sensor accelerometer;
-
-    private Sensor gyroscope;
+    private OpticalDistanceSensor sensorDistance;
 
 //TouchSensor touchSensor;
    // Servo servo1;
@@ -64,6 +54,11 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRight.setDirection(DcMotor.Direction.REVERSE);
         sensorRGB = hardwareMap.colorSensor.get("Color_Sensor");
         sensorRGB.enableLed(true);
+        sensorDistance = hardwareMap.opticalDistanceSensor.get("Distance_Sensor");
+
+
+
+
         //float hsvValues = {0F, 0F, 0F};
         //final float values[] = hsvValues;
         //touchSensor = hardwareMap.touchSensor.get ("touchSensor");
@@ -74,48 +69,11 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        gyroscope = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-
     }
 
     public void start() {
         mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
     }
-   /* public void onSensorChanged(SensorEvent event) { //when sensor changes, calculate
-        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-
-        if (timestamp != 0) {
-            final float dT = (event.timestamp - timestamp) * NS2S; //set dT (change in time)
-            //Find the un-normalized value of the rotation sample - pulled from an array.
-            float axisX = event.values[0];
-            float axisY = event.values[1];
-            float axisZ = event.values[2];
-            //Calculate the angular speed
-            float omegaMagnitude = (float) Math.sqrt(axisX * axisX + axisY * axisY + axisZ * axisZ);
-            //Normalize the rotation vector (epsilon - max value allowed)
-            if (omegaMagnitude > 1.0) {
-                axisX /= omegaMagnitude;
-                axisY /= omegaMagnitude;
-                axisZ /= omegaMagnitude;
-            }
-            float thetaOverTwo = omegaMagnitude * dT / 2.0f;
-            float sinThetaOverTwo = (float) Math.sin(thetaOverTwo);
-            float cosThetaOverTwo = (float) Math.cos(thetaOverTwo);
-            deltaRotationVector[0] = sinThetaOverTwo * axisX;
-            deltaRotationVector[1] = sinThetaOverTwo * axisY;
-            deltaRotationVector[2] = sinThetaOverTwo * axisZ;
-            deltaRotationVector[3] = cosThetaOverTwo;
-        }
-
-        }
-        timestamp = event.timestamp;
-        float[] deltaRotationMatrix = new float[9];
-        SensorManager.getRotationMatrixFromVector(deltaRotationMatrix, deltaRotationVector);
-
-        telemetry.addData("X-Axis", deltaRotationMatrix[0]);
-        telemetry.addData("Y-Axis", deltaRotationMatrix[1]);
-        telemetry.addData("Z-Axis", deltaRotationMatrix[2]); */
-
 
        //}
     @Override
@@ -132,6 +90,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         motorLeft.setPower(throttlel);
         motorRight.setPower(throttler);
+
+        double odsReadingD = sensorDistance.getLightDetected();
+        int odsReadingI = sensorDistance.getLightDetectedRaw();
 
 
         //servo1.setPosition(servo1Position);
@@ -164,6 +125,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         telemetry.addData("X Accelerometer", accelX);
         telemetry.addData("Y Accelerometer", accelY);
         telemetry.addData("Z Accelerometer", accelZ);
+
+        telemetry.addData ("Light Detected", odsReadingD);
+        telemetry.addData ("Light Detected Raw", odsReadingI);
 
         //telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
     }
