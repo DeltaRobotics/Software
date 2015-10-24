@@ -21,11 +21,11 @@ public class DR_Auto_Setup extends OpMode {
     @Override public void init() {
         //Gets all four drive motors, and reverses the direction of both right motors. This allows values to be put in the same on each side.
 
-        motorLeftRear = hardwareMap.dcMotor.get("Drive Left Rear");
-        motorRightRear = hardwareMap.dcMotor.get("Drive Right Rear");
+        motorLeftRear = hardwareMap.dcMotor.get("Drive_Left_Rear");
+        motorRightRear = hardwareMap.dcMotor.get("Drive_Right_Rear");
         motorRightRear.setDirection(DcMotor.Direction.REVERSE);
-        motorLeftFront = hardwareMap.dcMotor.get("Drive Left Front");
-        motorRightFront = hardwareMap.dcMotor.get("Drive Right Front");
+        motorLeftFront = hardwareMap.dcMotor.get("Drive_Left_Front");
+        motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
     }
     public void loop()

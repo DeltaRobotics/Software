@@ -30,6 +30,13 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public float accelY = 0;
     public float accelZ = 0;
 
+    float[] orientationVals = new float[4];
+    float[] mRotationMatrix = new float[16];
+
+    public double azimuth1;
+    public double pitch1;
+    public double roll1;
+
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
@@ -69,6 +76,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
     }
 
     public void start() {
@@ -93,6 +101,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         double odsReadingD = sensorDistance.getLightDetected();
         int odsReadingI = sensorDistance.getLightDetectedRaw();
+
 
 
         //servo1.setPosition(servo1Position);
@@ -125,6 +134,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         telemetry.addData("X Accelerometer", accelX);
         telemetry.addData("Y Accelerometer", accelY);
         telemetry.addData("Z Accelerometer", accelZ);
+        telemetry.addData("Azimuth",orientationVals[0]);
+        telemetry.addData("Pitch",orientationVals[1]);
+        telemetry.addData("Roll", orientationVals[2]);
 
         telemetry.addData ("Light Detected", odsReadingD);
         telemetry.addData ("Light Detected Raw", odsReadingI);
@@ -132,8 +144,12 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         //telemetry.addData("Is Pressed", String.valueOf(touchSensor.isPressed()) );
     }
 @Override
-        public void onSensorChanged(SensorEvent event) {
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        public void onSensorChanged(SensorEvent event)
+        {
+            telemetry.addData ("ASensor", "Sensor Hit");
+            /* if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            {
+                telemetry.addData ("ASensor", "Accel");
                 // get the change of the x,y,z values of the accelerometer
                 deltaX = Math.abs(lastX - event.values[0]);
                 deltaY = Math.abs(lastY - event.values[1]);
@@ -150,7 +166,20 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
                 accelY = deltaY;
                 accelZ = deltaZ;
             }
+            */
+            if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR)
+            {
+                telemetry.addData ("ASensor", "Rotation");
+                SensorManager.getRotationMatrixFromVector(mRotationMatrix, event.values);
+                SensorManager.remapCoordinateSystem(mRotationMatrix,SensorManager.AXIS_X, SensorManager.AXIS_Z, mRotationMatrix);
+                SensorManager.getOrientation(mRotationMatrix, orientationVals);
 
+                // Optionally convert the result from radians to degrees
+                orientationVals[0] = (float) Math.toDegrees(orientationVals[0]);
+                orientationVals[1] = (float) Math.toDegrees(orientationVals[1]);
+                orientationVals[2] = (float) Math.toDegrees(orientationVals[2]);
+
+            }
         }
     double scaleInput(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
