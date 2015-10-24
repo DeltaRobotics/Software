@@ -123,7 +123,6 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         //telemetry.addData("Hue", hsvValues[0]);
 
 
-
         telemetry.addData("Left Drive: "
                 ,	+ motorLeft.getPower ()
                     + motorLeft.getCurrentPosition());
