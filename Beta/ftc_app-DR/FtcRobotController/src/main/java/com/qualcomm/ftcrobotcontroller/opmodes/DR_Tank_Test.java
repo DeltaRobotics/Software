@@ -153,7 +153,6 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             telemetry.addData ("ASensor", "Sensor Hit");
             /* if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             {
-                telemetry.addData ("ASensor", "Accel");
                 // get the change of the x,y,z values of the accelerometer
                 deltaX = Math.abs(lastX - event.values[0]);
                 deltaY = Math.abs(lastY - event.values[1]);
