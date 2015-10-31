@@ -16,6 +16,7 @@ import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
+import com.qualcomm.robotcore.hardware.DeviceInterfaceModule;
 
 /**
  * Created by steve.brooks on 9/30/2015.
@@ -37,6 +38,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public double pitch1;
     public double roll1;
 
+    DeviceInterfaceModule cdim;
+    //GyroSensor sensorGyro;
     ColorSensor sensorRGB;
     DcMotor motorRight;
     DcMotor motorLeft;
@@ -44,6 +47,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     private SensorManager mSensorManager;
     private Sensor accelerometer;
     private OpticalDistanceSensor sensorDistance;
+
+    private double rotation;
 
 //TouchSensor touchSensor;
    // Servo servo1;
@@ -62,6 +67,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         sensorRGB = hardwareMap.colorSensor.get("Color_Sensor");
         sensorRGB.enableLed(true);
         sensorDistance = hardwareMap.opticalDistanceSensor.get("Distance_Sensor");
+        cdim = hardwareMap.deviceInterfaceModule.get("dim");
+        //GyroSensor = hardwareMap.gyroSensor.get("Gyro_Sensor");
 
 
 
@@ -102,7 +109,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         double odsReadingD = sensorDistance.getLightDetected();
         int odsReadingI = sensorDistance.getLightDetectedRaw();
 
-
+        //rotation = sensorGyro.getRotation();
 
         //servo1.setPosition(servo1Position);
 
@@ -133,9 +140,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         telemetry.addData("X Accelerometer", accelX);
         telemetry.addData("Y Accelerometer", accelY);
         telemetry.addData("Z Accelerometer", accelZ);
-        telemetry.addData("Azimuth",orientationVals[0]);
-        telemetry.addData("Pitch",orientationVals[1]);
-        telemetry.addData("Roll", orientationVals[2]);
+        telemetry.addData("Rotation", rotation);
 
         telemetry.addData ("Light Detected", odsReadingD);
         telemetry.addData ("Light Detected Raw", odsReadingI);
