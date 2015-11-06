@@ -1,6 +1,7 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.util.Range;
@@ -35,9 +36,9 @@ public class DR_Auto_Setup extends OpMode {
     public void reset_drive_encoders()
     //Reset all four drive motors, if they are connected. If a motor is not connected (i.e. reads null), it will not be reset.
     {
-        if (motorLeftRear != null)
+        if (motorLeftRear != null)  //if the motor is connected
         {
-            motorLeftRear.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
+            motorLeftRear.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS); //Reset the encoder count
         }
         if (motorRightRear != null)
         {
@@ -53,6 +54,7 @@ public class DR_Auto_Setup extends OpMode {
         }
     }
     public void run_using_encoders()
+            //turns on the encoders/starts reading them
     {
         if (motorLeftRear != null && motorRightRear != null && motorLeftFront != null && motorRightFront != null)
         {
@@ -116,7 +118,7 @@ public class DR_Auto_Setup extends OpMode {
     }
     boolean has_LeftRear_encoder_reached(double e_count)
     //Has the left rear reached the value of the encoder that was designated?
-    {
+        {
         boolean returnLRe = false;
         if (motorLeftRear != null)
         {

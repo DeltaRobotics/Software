@@ -10,7 +10,7 @@ import com.qualcomm.robotcore.hardware.I2cDeviceReader;
 /**
  * Created by RoboticsUser on 10/31/2015.
  */
-
+/*
 public class GyroSensorDriver extends I2cDevice {
 
     private ArrayQueue<I2cTransfer>transferQueue;
@@ -29,9 +29,9 @@ public class GyroSensorDriver extends I2cDevice {
         rLock = gyroDevice.getI2cReadCacheLock();
         wLock = gyroDevice.getI2cWriteCacheLock();
 
-        addWriteRequest(ENABLE,)
+        addWriteRequest(ENABLE,);
 
     }
 public void init(){}
 public void loop(){}
-}
+}*/
