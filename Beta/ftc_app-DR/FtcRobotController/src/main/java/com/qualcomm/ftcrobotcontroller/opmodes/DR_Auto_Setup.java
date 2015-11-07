@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class DR_Auto_Setup extends OpMode {
 
+
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
@@ -215,6 +216,15 @@ public class DR_Auto_Setup extends OpMode {
             Preturn = true;
         }
         return Preturn;
+    }
+    public static void sleep(int amt) // In milliseconds
+    {
+        double a = System.currentTimeMillis();
+        double b = System.currentTimeMillis();
+        while ((b - a) <= amt)
+        {
+            b = System.currentTimeMillis();
+        }
     }
     float scale_motor_power (float scale_power)
     {
