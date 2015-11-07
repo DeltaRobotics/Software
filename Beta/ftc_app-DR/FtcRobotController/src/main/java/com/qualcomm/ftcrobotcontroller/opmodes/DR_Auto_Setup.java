@@ -5,6 +5,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+import android.app.Activity;
+import android.graphics.Color;
+import android.view.View;
 /**
  * Created by Delta on 10/8/2015.
  */
@@ -15,6 +19,15 @@ public class DR_Auto_Setup extends OpMode {
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
+
+    double far1 = 1000;
+    double far2 = 4000;
+    double close1 = 2000;
+    double close2 = 2000;
+    double climb1 = 2000;
+
+    double turn1 = 500;
+    double turn2 = 1000;
 
 
     public DR_Auto_Setup() {
