@@ -7,8 +7,10 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class DR_Auto_TestBF extends DR_Auto_Setup {
 
+    Servo armColorSensor;
     Servo plowLeft;
     Servo plowRight;
+    Servo plowInOut;
     double SCA;
     double SCAdelta;
     double pL;
@@ -16,47 +18,60 @@ public class DR_Auto_TestBF extends DR_Auto_Setup {
     double pR;
     double pRdelta;
     double plowdelta;
+    double InOut;
     private int a_state = 0;
 
     @Override
     public void init() {
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
-        SCA = 0.0;
+        armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
+        plowInOut = hardwareMap.servo.get("InOut_Plow");
+        SCA = 0.80;
+        InOut = .5;
         SCAdelta = 0.05;
         plowdelta = 0.05;
-        pL = 0.3;
+        pL = 0.02;
         pLdelta = plowdelta;
-        pR = 0.7;
+        pR = 0.98;
         pRdelta = -plowdelta;
         plowLeft.setPosition(pL);
         plowRight.setPosition(pR);
+        armColorSensor.setPosition(SCA);
+
 
     }
     public void loop(){
+        telemetry.addData("Case", "X");
         SCA = Range.clip(SCA,0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
-        telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());
+        /*telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());
         telemetry.addData("Encoder RR", motorRightRear.getCurrentPosition());
         telemetry.addData("Encoder LF", motorLeftFront.getCurrentPosition());
-        telemetry.addData("Encoder RF", motorRightFront.getCurrentPosition());
+        telemetry.addData("Encoder RF", motorRightFront.getCurrentPosition()); */
         switch (a_state){
             case 0:
+                telemetry.addData("Case", "0");
                 reset_drive_encoders();
+                telemetry.addData("Test:", "reset_enc");
                 run_using_encoders();
+                telemetry.addData("Test:", "run_enc");
                 a_state++;
                 break;
             case 1:
+                telemetry.addData("Case", "1");
                 set_drive_power(0.5,0.5,0.5,0.5);
                 if (has_LeftRear_encoder_reached(far1))
                 {
+                    telemetry.addData("Test:", "enc_reached");
                     set_drive_power(0.0,0.0,0.0,0.0);
                     sleep(500);
                     a_state++;
                 }
                 break;
             case 2:
+                telemetry.addData("Case", "2");
                 reset_drive_encoders();
                 set_drive_power(0.5,-0.5,0.5,-0.5);
                 if (has_LeftRear_encoder_reached(turn1))

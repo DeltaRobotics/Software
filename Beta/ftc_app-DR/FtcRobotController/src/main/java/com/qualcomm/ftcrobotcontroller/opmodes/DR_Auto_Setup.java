@@ -42,6 +42,11 @@ public class DR_Auto_Setup extends OpMode {
         motorLeftFront = hardwareMap.dcMotor.get("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
+
+        motorLeftRear.setPower(0.0);
+        motorRightRear.setPower(0.0);
+        motorLeftFront.setPower(0.0);
+        motorRightFront.setPower(0.0);
     }
     public void loop()
     {
@@ -197,24 +202,50 @@ public class DR_Auto_Setup extends OpMode {
     void set_drive_power(double LR_power, double RR_power, double LF_power, double RF_power)
     //Set the power for each motor
     {
-        if(motorLeftRear != null)
-        {
-            motorLeftRear.setPower(LR_power);
-        }
-        if(motorRightRear != null)
-        {
-            motorRightRear.setPower(RR_power);
-        }
-        if(motorLeftFront != null)
-        {
-            motorLeftFront.setPower(LF_power);
+        float LR_power_float;
+        float RR_power_float;
+        float LF_power_float;
+        float RF_power_float;
+
+        RF_power_float = (float) RF_power;
+        LF_power_float = (float) LF_power;
+        RR_power_float = (float) RR_power;
+        LR_power_float = (float) LR_power;
+
+
+        telemetry.addData("Test:", "sdp");
+            telemetry.addData("Test:", LR_power_float);
+        sleep(5000);
+        motorLeftRear.setPower(0.0);
+        sleep(5000);
+            motorLeftRear.setPower(0.5);
+        //    motorLeftRear.setPower(LR_power_float);
+        telemetry.addData("Test:", "sdp_LR1");
+        sleep(1000);
+
+
+            telemetry.addData("Test:", "sdp_RR");
+        sleep(1000);
+            motorRightRear.setPower(RR_power_float);
+            telemetry.addData("Test:", "sdp_RR1");
+        sleep(1000);
+
+            telemetry.addData("Test:", "sdp_LF");
+        sleep(1000);
+            motorLeftFront.setPower(LF_power_float);
+            telemetry.addData("Test:", "sdp_LF1");
+        sleep(1000);
+
+            telemetry.addData("Test:", "sdp_RF");
+            telemetry.addData("Power:", RF_power_float);
+
+        sleep(1000);
+            motorRightFront.setPower(RF_power_float);
+            telemetry.addData("Test:", "sdp_RF1");
+            sleep(1000);
+        //telemetry.addData("Test:", "done");
         }
 
-        if(motorRightFront != null)
-        {
-            motorRightFront.setPower(RF_power);
-        }
-    }
     boolean drive_using_encoders(double LR_power, double RR_power, double LF_power, double RF_power,
                                  double e_countLR, double e_countRR, double e_countLF, double e_countRF)
     ///Drive with encoders and indicate if the encoder count is reached.
