@@ -26,7 +26,11 @@ public class DR_Auto_TestBF extends OpMode{
     double pRdelta;
     double plowdelta;
     double InOut;
-    private int a_state = 0;
+    private int a_state;
+    private int LR_enc;
+    private int RR_enc;
+    private int LF_enc;
+    private int RF_enc;
 
     @Override
     public void init() {
@@ -51,8 +55,9 @@ public class DR_Auto_TestBF extends OpMode{
         plowLeft.setPosition(pL);
         plowRight.setPosition(pR);
         armColorSensor.setPosition(SCA);
+        a_state = 0;
 
-
+        update_encoders();
     }
     public void loop(){
         telemetry.addData("Case", "X");
@@ -68,10 +73,10 @@ public class DR_Auto_TestBF extends OpMode{
             case 0:
                 telemetry.addData("Case", "0");
                 telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
-                reset_drive_encoders();
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
                 telemetry.addData("Test:", "reset_enc");
-                run_using_encoders();
+                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
                 a_state++;
                 break;
@@ -88,19 +93,27 @@ public class DR_Auto_TestBF extends OpMode{
                 break;
             case 2:
                 telemetry.addData("Case", "2");
-                telemetry.addData("Enc_Count2", motorLeftRear.getCurrentPosition());
-                reset_drive_encoders();
-                telemetry.addData("Enc_Count3", motorLeftRear.getCurrentPosition());
+                update_encoders();
+                telemetry.addData("Enc_Count2", LR_enc);
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+                update_encoders();
+                telemetry.addData("Enc_Count3", LR_enc);
+                telemetry.addData("encodersAreZero", encodersAreZero());
                 set_motor_power(0.5, -0.5, 0.5, -0.5);
-                if (has_Left_encoder_reached(2000))
+                if (has_Left_encoder_reached(3000))
                 {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     sleep(500);
                     a_state++;
                 }
+                else
+                {
+                    telemetry.addData("Waiting in case 2", "True");
+                }
                 break;
             case 3:
-                reset_drive_encoders();
+                telemetry.addData("Case", "3");
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5, 0.5, 0.5, 0.5);
                 if (has_Left_encoder_reached(4000))
                 {
@@ -108,9 +121,14 @@ public class DR_Auto_TestBF extends OpMode{
                     sleep(500);
                     a_state++;
                 }
+                else
+                {
+                    telemetry.addData("Waiting in case 3", "True");
+                }
                 break;
             case 4:
-                reset_drive_encoders();
+                telemetry.addData("Case", "4");
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5, -0.5, 0.5, -0.5);
                 if (has_Left_encoder_reached(1000))
                 {
@@ -120,9 +138,10 @@ public class DR_Auto_TestBF extends OpMode{
                 }
                 break;
             case 5:
-                reset_drive_encoders();
+                telemetry.addData("Case", "5");
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5, 0.5, 0.5, 0.5);
-                if (motorLeftRear.getCurrentPosition() > 2000)
+                if (LR_enc > 2000)
                 {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     sleep(500);
@@ -130,7 +149,13 @@ public class DR_Auto_TestBF extends OpMode{
                 }
                 break;
             case 6:
+                telemetry.addData("Case", "6");
                 telemetry.addData("Stopped", 0.0);
+                break;
+            default:
+                telemetry.addData("Case", "Default");
+                telemetry.addData("Default Case Reached", "True");
+                break;
         }
     }
     public void set_motor_power(double LR_power, double RR_power, double LF_power, double RF_power)
@@ -140,13 +165,24 @@ public class DR_Auto_TestBF extends OpMode{
         motorLeftFront.setPower(LF_power);
         motorRightFront.setPower(RF_power);
     }
-    public void reset_drive_encoders()
-    {
-        motorLeftRear.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorRightRear.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorLeftFront.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        motorRightFront.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
-        telemetry.addData("Motor Object", motorLeftRear.toString());
+    public void set_drive_mode(DcMotorController.RunMode mode) {
+        if (motorLeftRear.getChannelMode() != mode)
+        {
+            motorLeftRear.setChannelMode(mode);
+        }
+        if (motorRightRear.getChannelMode() != mode)
+        {
+            motorRightRear.setChannelMode(mode);
+        }
+        if (motorLeftFront.getChannelMode() != mode)
+        {
+            motorLeftFront.setChannelMode(mode);
+        }
+        if (motorRightFront.getChannelMode() != mode)
+        {
+            motorRightFront.setChannelMode(mode);
+        }
+
     }
     public void run_using_encoders()
     {
@@ -165,8 +201,7 @@ public class DR_Auto_TestBF extends OpMode{
         if (motorLeftRear != null)
         {
             if (
-                    (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2
-                ) > e_count)
+                    (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
             {
                 returnLRe = true;
             }
@@ -179,7 +214,8 @@ public class DR_Auto_TestBF extends OpMode{
         boolean returnRRe = false;
         if (motorRightRear != null)
         {
-            if (((Math.abs(motorRightRear.getCurrentPosition()) + Math.abs(motorRightFront.getCurrentPosition()))/2) > e_count)
+            if (((Math.abs(motorRightRear.getCurrentPosition())
+                + Math.abs(motorRightFront.getCurrentPosition()))/2) > e_count)
             {
                 returnRRe = true;
             }
@@ -193,6 +229,20 @@ public class DR_Auto_TestBF extends OpMode{
         while ((b - a) <= amt) {
             b = System.currentTimeMillis();
         }
+    }
+    public boolean encodersAreZero()
+    {
+        return (motorLeftRear.getCurrentPosition() == 0 &&
+                motorRightRear.getCurrentPosition() == 0 &&
+                motorLeftFront.getCurrentPosition() == 0 &&
+                motorRightFront.getCurrentPosition() == 0);
+    }
+    public void update_encoders()
+    {
+        LR_enc = motorLeftRear.getCurrentPosition();
+        RR_enc = motorRightRear.getCurrentPosition();
+        LF_enc = motorLeftFront.getCurrentPosition();
+        RF_enc = motorRightFront.getCurrentPosition();
     }
 
 }

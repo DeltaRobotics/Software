@@ -14,10 +14,6 @@ import com.qualcomm.robotcore.hardware.Servo;
  */
 public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
-    //public float deltaX = 0;
-    //public float deltaY = 0;
-    //public float deltaZ = 0;
-    //public float lastX, lastY, lastZ;
     //public float accelX = 0;
     //public float accelY = 0;
    //public float accelZ = 0;
@@ -41,10 +37,10 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     double inOutDelta = 0.01;
     double armColorSensorPosition = 0.8;
 
-    boolean powerMode;
+    boolean speed_mode;
     //Initialize the Accelerometer
-    private SensorManager mSensorManager;
-    private Sensor accelerometer;
+    //private SensorManager mSensorManager;
+    //private Sensor accelerometer;
 
 
 
@@ -64,6 +60,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
         armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
+
+        speed_mode = true;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -85,32 +83,31 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         float throttleL = gamepad1.left_stick_y;
         float throttleR = gamepad1.right_stick_y;
-        throttleL = Range.clip (throttleL, -1, 1);
-        throttleR = Range.clip(throttleR, -1, 1);
 
-        throttleL = (float) scaleInputHigh(throttleL);
-        throttleR = (float) scaleInputHigh(throttleR);
-        /*
         if (gamepad1.y)
         {
-            powerMode = true;
+            speed_mode = true;
         }
         if (gamepad1.a)
         {
-            powerMode = false;
+            speed_mode = false;
         }
 
-        if (powerMode = true)
+        if (speed_mode)
         {
-            throttleL = (float) scaleInputHigh(throttleL);
-            throttleR = (float) scaleInputHigh(throttleR);
+            throttleL = Range.clip(throttleL, -1, 1);
+            throttleR = Range.clip(throttleR, -1, 1);
+            throttleL = (float) scaleInput(throttleL);
+            throttleR = (float) scaleInput(throttleR);
         }
-        else
+        if (!speed_mode )
         {
+            throttleL = (float) Range.clip(throttleL, -0.5, 0.5);
+            throttleR = (float) Range.clip(throttleR, -0.5, 0.5);
             throttleL = (float) scaleInputLow(throttleL);
             throttleR = (float) scaleInputLow(throttleR);
         }
-        */
+
 
         motorLeftRear.setPower(throttleL);
         motorLeftFront.setPower(throttleL);
@@ -208,7 +205,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             */
 
             }
-    double scaleInputHigh(double dVal) {
+    double scaleInput(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
                 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
 
@@ -229,25 +226,24 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         return dScale;
     }
-    double scaleInputLow(double dVal) {
+    double scaleInputLow(double dVal){
         double[] scaleArray = {0.0, 0.025, 0.045, 0.05, 0.06, 0.075, 0.09, 0.12,
-                0.15, 0.18, 0.215, 0.25, 0.30, 0.36, 0.425, 0.5, 0.5};
+                 0.15, 0.18, 0.215, 0.25, 0.30, 0.36, 0.425, 0.5, 0.5};
 
-        // get the corresponding index for the scaleInput array.
         int index = (int) (dVal * 16.0);
         if (index < 0) {
             index = -index;
-        } else if (index > 16) {
+        }
+        else if (index > 16) {
             index = 16;
         }
-
         double dScale = 0.0;
         if (dVal < 0) {
             dScale = -scaleArray[index];
-        } else {
+        }
+        else {
             dScale = scaleArray[index];
         }
-
         return dScale;
     }
 }
