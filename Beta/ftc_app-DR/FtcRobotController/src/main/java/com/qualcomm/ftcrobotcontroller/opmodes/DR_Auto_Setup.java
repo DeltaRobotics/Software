@@ -52,7 +52,7 @@ public class DR_Auto_Setup extends OpMode {
     {
 
     }
-    public void reset_drive_encoders()
+    public void DR_reset_drive_encoders()
     //Reset all four drive motors, if they are connected. If a motor is not connected (i.e. reads null), it will not be reset.
     {
         if (motorLeftRear != null)  //if the motor is connected
@@ -72,7 +72,7 @@ public class DR_Auto_Setup extends OpMode {
             motorRightFront.setChannelMode(DcMotorController.RunMode.RESET_ENCODERS);
         }
     }
-    public void run_using_encoders()
+    public void DR_run_using_encoders()
             //turns on the encoders/starts reading them
     {
         if (motorLeftRear != null && motorRightRear != null && motorLeftFront != null && motorRightFront != null)
@@ -251,11 +251,11 @@ public class DR_Auto_Setup extends OpMode {
     ///Drive with encoders and indicate if the encoder count is reached.
     {
         boolean Preturn = false;
-        run_using_encoders();
+        DR_run_using_encoders();
         set_drive_power(LR_power, RR_power, LF_power, RF_power);
         if(have_drive_encoders_reached(e_countLR, e_countRR, e_countLF, e_countRF))
         {
-            reset_drive_encoders();
+            DR_reset_drive_encoders();
             set_drive_power(0.0f, 0.0f, 0.0f, 0.0f);
             Preturn = true;
         }

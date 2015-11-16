@@ -34,7 +34,7 @@ public class DR_Auto_TestRC extends DR_Auto_Setup{
 
     }
     public void loop(){
-        SCA = Range.clip(SCA, 0.05, 0.9);
+       /* SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
         telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());
@@ -99,6 +99,6 @@ public class DR_Auto_TestRC extends DR_Auto_Setup{
             case 6:
                 telemetry.addData("Stopped", 0.0);
         }
-
+*/
     }
 }
