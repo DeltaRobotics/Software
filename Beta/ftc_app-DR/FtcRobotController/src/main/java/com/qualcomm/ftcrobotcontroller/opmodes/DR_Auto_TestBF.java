@@ -14,12 +14,12 @@ public class DR_Auto_TestBF extends OpMode{
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
-    Servo armColorSensor;
+    //Servo armColorSensor;
     Servo plowLeft;
     Servo plowRight;
     Servo plowInOut;
-    double SCA;
-    double SCAdelta;
+    //double SCA;
+    //double SCAdelta;
     double pL;
     double pLdelta;
     double pR;
@@ -42,11 +42,11 @@ public class DR_Auto_TestBF extends OpMode{
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
-        armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
+        //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
-        SCA = 0.80;
+        //SCA = 0.80;
         InOut = .5;
-        SCAdelta = 0.05;
+        //SCAdelta = 0.05;
         plowdelta = 0.05;
         pL = 0.02;
         pLdelta = plowdelta;
@@ -54,7 +54,7 @@ public class DR_Auto_TestBF extends OpMode{
         pRdelta = -plowdelta;
         plowLeft.setPosition(pL);
         plowRight.setPosition(pR);
-        armColorSensor.setPosition(SCA);
+        //armColorSensor.setPosition(SCA);
         a_state = 0;
 
         update_encoders();
@@ -62,7 +62,7 @@ public class DR_Auto_TestBF extends OpMode{
     public void loop(){
         telemetry.addData("Case", "X");
         telemetry.addData("a_state", a_state);
-        SCA = Range.clip(SCA, 0.05, 0.9);
+        //SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
         /*telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());

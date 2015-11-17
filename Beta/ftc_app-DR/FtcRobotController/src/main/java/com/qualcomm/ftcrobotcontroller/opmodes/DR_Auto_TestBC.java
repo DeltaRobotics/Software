@@ -16,8 +16,8 @@ public class DR_Auto_TestBC extends OpMode{
     DcMotor motorRightFront;
     Servo plowLeft;
     Servo plowRight;
-    double SCA;
-    double SCAdelta;
+    //double SCA;
+    //double SCAdelta;
     double pL;
     double pLdelta;
     double pR;
@@ -39,8 +39,8 @@ public class DR_Auto_TestBC extends OpMode{
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
-        SCA = 0.0;
-        SCAdelta = 0.05;
+        //SCA = 0.0;
+        //SCAdelta = 0.05;
         plowdelta = 0.05;
         pL = 0.3;
         pLdelta = plowdelta;
@@ -51,7 +51,7 @@ public class DR_Auto_TestBC extends OpMode{
 
     }
     public void loop(){
-        SCA = Range.clip(SCA, 0.05, 0.9);
+        //SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
         telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());

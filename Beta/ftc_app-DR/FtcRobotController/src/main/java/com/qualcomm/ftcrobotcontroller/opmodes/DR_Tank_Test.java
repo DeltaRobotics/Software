@@ -26,7 +26,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     Servo plowLeft;
     Servo plowRight;
     Servo plowInOut;
-    Servo armColorSensor;
+    //Servo armColorSensor;
 
     double plowDelta = 0.01;
     double plowDeltaLeft = plowDelta;
@@ -35,7 +35,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     double plowPositionRight = 0.5;
     double inOutPosition = 0.0;
     double inOutDelta = 0.01;
-    double armColorSensorPosition = 0.8;
+    //double armColorSensorPosition = 0.8;
 
     boolean speed_mode;
     //Initialize the Accelerometer
@@ -59,7 +59,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
-        armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
+        //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
 
         speed_mode = true;
 
@@ -154,7 +154,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowInOut.setPosition(inOutPosition);
         plowLeft.setPosition(plowPositionLeft);
         plowRight.setPosition(plowPositionRight);
-        armColorSensor.setPosition(armColorSensorPosition);
+        //armColorSensor.setPosition(armColorSensorPosition);
 
 
 
