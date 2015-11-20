@@ -28,13 +28,13 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     Servo plowInOut;
     //Servo armColorSensor;
 
-    double plowDelta = 0.01;
+    double plowDelta = 0.005;
     double plowDeltaLeft = plowDelta;
     double plowDeltaRight = -plowDelta;
     double plowPositionLeft = 0.5;
     double plowPositionRight = 0.5;
     double inOutPosition = 0.0;
-    double inOutDelta = 0.01;
+    double inOutDelta = 0.001;
     //double armColorSensorPosition = 0.8;
 
     boolean speed_mode;
@@ -53,12 +53,14 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRightRear = hardwareMap.dcMotor.get ("Drive_Right_Rear");
         motorLeftFront = hardwareMap.dcMotor.get ("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
-        motorLeftRear.setDirection(DcMotor.Direction.REVERSE);
-        motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
+        motorRightRear.setDirection(DcMotor.Direction.REVERSE);
+        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
+        plowLeft.setPosition(.61);
+        plowRight.setPosition(.39);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
 
         speed_mode = true;
@@ -102,8 +104,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         }
         if (!speed_mode )
         {
-            throttleL = (float) Range.clip(throttleL, -0.5, 0.5);
-            throttleR = (float) Range.clip(throttleR, -0.5, 0.5);
+            throttleL = (float) Range.clip(throttleL, -0.75, 0.75);
+            throttleR = (float) Range.clip(throttleR, -0.75, 0.75);
             throttleL = (float) scaleInputLow(throttleL);
             throttleR = (float) scaleInputLow(throttleR);
         }
@@ -142,13 +144,13 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             plowPositionLeft = 0.05;
             plowPositionRight = 0.95;
         }
-        if (gamepad2.x)
-        {
-            inOutPosition = 0.3;
-        }
         if (gamepad2.b)
         {
-            inOutPosition = 0.7;
+            inOutPosition = 0.05;
+        }
+        if (gamepad2.x)
+        {
+            inOutPosition = 0.56;
         }
 
         plowInOut.setPosition(inOutPosition);
@@ -227,8 +229,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         return dScale;
     }
     double scaleInputLow(double dVal){
-        double[] scaleArray = {0.0, 0.025, 0.045, 0.05, 0.06, 0.075, 0.09, 0.12,
-                 0.15, 0.18, 0.215, 0.25, 0.30, 0.36, 0.425, 0.5, 0.5};
+        double[] scaleArray = {0.0, 0.0375, 0.0675, 0.075, 0.09, 0.1125, 0.135, 0.18,
+                 0.225, 0.27, 0.3225, 0.375, 0.45, 0.54, 0.6375, 0.75, 0.75};
 
         int index = (int) (dVal * 16.0);
         if (index < 0) {

@@ -28,7 +28,10 @@ public class DR_Auto_TestBC extends OpMode{
     private int RR_enc;
     private int LF_enc;
     private int RF_enc;
-
+    private int currentEncLR;
+    private int currentEncLF;
+    private int currentEncRR;
+    private int currentEncRF;
     @Override
     public void init() {
         motorLeftRear = hardwareMap.dcMotor.get("Drive_Left_Rear");
@@ -58,6 +61,10 @@ public class DR_Auto_TestBC extends OpMode{
         telemetry.addData("Encoder RR", motorRightRear.getCurrentPosition());
         telemetry.addData("Encoder LF", motorLeftFront.getCurrentPosition());
         telemetry.addData("Encoder RF", motorRightFront.getCurrentPosition());
+        currentEncLR = LR_enc;
+        currentEncLF = LF_enc;
+        currentEncRR = RR_enc;
+        currentEncRF = RF_enc;
         switch (a_state){
             case 0:
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -66,7 +73,7 @@ public class DR_Auto_TestBC extends OpMode{
                 break;
             case 1:
                 set_motor_power(0.5, 0.5, 0.5, 0.5);
-                if (has_Left_encoder_reached(1000))
+                if (has_Left_encoder_reached(LR_enc + 1000))
                 {
                     set_motor_power(0.0,0.0,0.0,0.0);
                     sleep(500);
@@ -76,7 +83,7 @@ public class DR_Auto_TestBC extends OpMode{
             case 2:
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5,-0.5,0.5,-0.5);
-                if (has_Left_encoder_reached(1000))
+                if (has_Left_encoder_reached(LR_enc + 1000))
                 {
                     set_motor_power(0.0,0.0,0.0,0.0);
                     sleep(500);
@@ -86,7 +93,7 @@ public class DR_Auto_TestBC extends OpMode{
             case 3:
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5,0.5,0.5,0.5);
-                if (has_Left_encoder_reached(2000))
+                if (has_Left_encoder_reached(LR_enc + 2000))
                 {
                     set_motor_power(0.0,0.0,0.0,0.0);
                     sleep(500);
@@ -96,7 +103,7 @@ public class DR_Auto_TestBC extends OpMode{
             case 4:
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5,-0.5,0.5,-0.5);
-                if (has_Left_encoder_reached(2000))
+                if (has_Left_encoder_reached(LR_enc + 2000))
                 {
                     set_motor_power(0.0,0.0,0.0,0.0);
                     sleep(500);
@@ -106,7 +113,7 @@ public class DR_Auto_TestBC extends OpMode{
             case 5:
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_motor_power(0.5,0.5,0.5,0.5);
-                if (LR_enc > 2000)
+                if (LR_enc > (LR_enc + 2000))
                 {
                     set_motor_power(0.0,0.0,0.0,0.0);
                     sleep(500);
