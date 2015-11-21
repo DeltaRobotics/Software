@@ -23,7 +23,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
 
-    Servo plowLeft;
+    /*Servo plowLeft;
     Servo plowRight;
     Servo plowInOut;
     //Servo armColorSensor;
@@ -34,9 +34,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     double plowPositionLeft = 0.5;
     double plowPositionRight = 0.5;
     double inOutPosition = 0.0;
-    double inOutDelta = 0.001;
+    double inOutDelta = 0.005;
     //double armColorSensorPosition = 0.8;
-
+*/
     boolean speed_mode;
     //Initialize the Accelerometer
     //private SensorManager mSensorManager;
@@ -54,15 +54,16 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorLeftFront = hardwareMap.dcMotor.get ("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
         motorRightRear.setDirection(DcMotor.Direction.REVERSE);
-        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
-
+        motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
+/*
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
         plowLeft.setPosition(.61);
         plowRight.setPosition(.39);
+        plowInOut.setPosition(.45);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
-
+*/
         speed_mode = true;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
@@ -79,12 +80,14 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
     public void loop() {
-        plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
-        plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
-        inOutPosition = Range.clip(inOutPosition,0.02,0.98);
+        //plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
+       // plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
+        //inOutPosition = Range.clip(inOutPosition,0.02,0.98);
 
-        float throttleL = gamepad1.left_stick_y;
-        float throttleR = gamepad1.right_stick_y;
+        float throttleLB = gamepad1.left_stick_y;
+        float throttleRB = gamepad1.right_stick_y;
+        float throttleLF = gamepad1.left_stick_y;
+        float throttleRF = gamepad1.right_stick_y;
 
         if (gamepad1.y)
         {
@@ -97,26 +100,34 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         if (speed_mode)
         {
-            throttleL = Range.clip(throttleL, -1, 1);
-            throttleR = Range.clip(throttleR, -1, 1);
-            throttleL = (float) scaleInput(throttleL);
-            throttleR = (float) scaleInput(throttleR);
+            throttleLB = Range.clip(throttleLB, -1, 1);
+            throttleRB = Range.clip(throttleRB, -1, 1);
+            throttleLF = Range.clip(throttleLF, (float) -.5, (float) .5);
+            throttleRF = Range.clip(throttleRF, (float) -.5, (float) .5);
+            throttleLB = (float) scaleInputRearHigh(throttleLB);
+            throttleRB = (float) scaleInputRearHigh(throttleRB);
+            throttleLF = (float) scaleInputFrontHigh(throttleLF);
+            throttleRF = (float) scaleInputFrontHigh(throttleRF);
         }
         if (!speed_mode )
         {
-            throttleL = (float) Range.clip(throttleL, -0.75, 0.75);
-            throttleR = (float) Range.clip(throttleR, -0.75, 0.75);
-            throttleL = (float) scaleInputLow(throttleL);
-            throttleR = (float) scaleInputLow(throttleR);
+            throttleLB = (float) Range.clip(throttleLB, -0.75, 0.75);
+            throttleRB = (float) Range.clip(throttleRB, -0.75, 0.75);
+            throttleLF = (float) Range.clip(throttleLF, -0.5625, 0.5625);
+            throttleRF = (float) Range.clip(throttleRF, -0.5625, 0.5625);
+            throttleLB = (float) scaleInputRearLow(throttleLB);
+            throttleRB = (float) scaleInputRearLow(throttleRB);
+            throttleLF = (float) scaleInputFrontLow(throttleLF);
+            throttleRF = (float) scaleInputFrontLow(throttleRF);
         }
 
 
-        motorLeftRear.setPower(throttleL);
-        motorLeftFront.setPower(throttleL);
-        motorRightRear.setPower(throttleR);
-        motorRightFront.setPower(throttleR);
+        motorLeftRear.setPower(throttleLB);
+        motorLeftFront.setPower(throttleLF);
+        motorRightRear.setPower(throttleRB);
+        motorRightFront.setPower(throttleRF);
 
-        if (gamepad2.right_bumper)
+        /*if (gamepad2.right_bumper)
         {
             plowPositionLeft += plowDeltaLeft;
             plowPositionRight += plowDeltaRight;
@@ -146,18 +157,18 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         }
         if (gamepad2.b)
         {
-            inOutPosition = 0.05;
+            inOutPosition = 0.001;
         }
         if (gamepad2.x)
         {
-            inOutPosition = 0.56;
+            inOutPosition = 0.83;
         }
 
         plowInOut.setPosition(inOutPosition);
         plowLeft.setPosition(plowPositionLeft);
         plowRight.setPosition(plowPositionRight);
         //armColorSensor.setPosition(armColorSensorPosition);
-
+*/
 
 
         telemetry.addData("Left Rear:"
@@ -172,9 +183,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
                 telemetry.addData("Right Front:"
                 ,   + motorRightFront.getPower()
                     + motorRightFront.getCurrentPosition());
-                telemetry.addData("Left Plow:", plowLeft.getPosition());
-                telemetry.addData("Right Plow:", plowRight.getPosition());
-                telemetry.addData("InOut Plow:", plowInOut.getPosition());
+                //telemetry.addData("Left Plow:", plowLeft.getPosition());
+                //telemetry.addData("Right Plow:", plowRight.getPosition());
+                //telemetry.addData("InOut Plow:", plowInOut.getPosition());
 
 
         //telemetry.addData("X Accelerometer", accelX);
@@ -207,7 +218,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             */
 
             }
-    double scaleInput(double dVal) {
+    double scaleInputRearHigh(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
                 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
 
@@ -228,9 +239,49 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
         return dScale;
     }
-    double scaleInputLow(double dVal){
+    double scaleInputRearLow(double dVal){
         double[] scaleArray = {0.0, 0.0375, 0.0675, 0.075, 0.09, 0.1125, 0.135, 0.18,
                  0.225, 0.27, 0.3225, 0.375, 0.45, 0.54, 0.6375, 0.75, 0.75};
+
+        int index = (int) (dVal * 16.0);
+        if (index < 0) {
+            index = -index;
+        }
+        else if (index > 16) {
+            index = 16;
+        }
+        double dScale = 0.0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        }
+        else {
+            dScale = scaleArray[index];
+        }
+        return dScale;
+    }
+    double scaleInputFrontHigh(double dVal){
+        double[] scaleArray = {0.0, 0.025, 0.045, 0.05, 0.06, 0.075, 0.09, 0.12,
+                0.15, 0.18, 0.215, 0.25, 0.30, 0.36, 0.425, 0.5, 0.5};
+
+        int index = (int) (dVal * 16.0);
+        if (index < 0) {
+            index = -index;
+        }
+        else if (index > 16) {
+            index = 16;
+        }
+        double dScale = 0.0;
+        if (dVal < 0) {
+            dScale = -scaleArray[index];
+        }
+        else {
+            dScale = scaleArray[index];
+        }
+        return dScale;
+    }
+    double scaleInputFrontLow(double dVal){
+        double[] scaleArray = {0.0, 0.01875, 0.03375, 0.0375, 0.045, 0.05625, 0.0675, 0.09,
+                0.1125, 0.135, 0.16125, 0.1875, 0.225, 0.27, 0.31875, 0.375, 0.375};
 
         int index = (int) (dVal * 16.0);
         if (index < 0) {
