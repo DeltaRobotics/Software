@@ -54,7 +54,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorLeftFront = hardwareMap.dcMotor.get ("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
         motorRightRear.setDirection(DcMotor.Direction.REVERSE);
-        motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
+        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 /*
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
@@ -102,8 +102,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         {
             throttleLB = Range.clip(throttleLB, -1, 1);
             throttleRB = Range.clip(throttleRB, -1, 1);
-            throttleLF = Range.clip(throttleLF, (float) -.5, (float) .5);
-            throttleRF = Range.clip(throttleRF, (float) -.5, (float) .5);
+            throttleLF = Range.clip(throttleLF, -1, 1);
+            throttleRF = Range.clip(throttleRF, -1, 1);
             throttleLB = (float) scaleInputRearHigh(throttleLB);
             throttleRB = (float) scaleInputRearHigh(throttleRB);
             throttleLF = (float) scaleInputFrontHigh(throttleLF);
