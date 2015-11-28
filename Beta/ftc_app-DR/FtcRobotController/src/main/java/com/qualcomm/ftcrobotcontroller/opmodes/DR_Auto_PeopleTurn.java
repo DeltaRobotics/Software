@@ -1,14 +1,14 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
-        import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-        import com.qualcomm.robotcore.hardware.DcMotor;
-        import com.qualcomm.robotcore.hardware.DcMotorController;
-        import com.qualcomm.robotcore.hardware.Servo;
-        import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.Range;
 
 /**
  * Created by Delta on 10/10/2015.
  */
-public class DR_Auto_TestBF extends OpMode{
+public class DR_Auto_PeopleTurn extends OpMode{
 
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
@@ -38,39 +38,52 @@ public class DR_Auto_TestBF extends OpMode{
     private int currentEncRF;
     final private double CATAPULT_UP = 0.156;
     final private double CATAPULT_DOWN = 0.858;
-    final private boolean SLOW_INCREMENT = true;
     final private double CATAPULT_DELTA = 0.001;
+    final private boolean SLOW_INCREMENT = true;
+
+    enum States {
+        INIT_MOTORS,
+        DRIVE_FORWARD,
+        PIVOT,
+        DUMP_PEOPLE
+    };
+
+    States current_state;
 
     @Override
     public void init() {
         motorLeftRear = hardwareMap.dcMotor.get("Drive_Left_Rear");
         motorRightRear = hardwareMap.dcMotor.get("Drive_Right_Rear");
-        motorRightRear.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftRear.setDirection(DcMotor.Direction.REVERSE);
         motorLeftFront = hardwareMap.dcMotor.get("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
-        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
+
+        set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+
         /*
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
         //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
-        */
         catapult = hardwareMap.servo.get("Catapult");
-        //SCA = 0.80;
+        SCA = 0.80;
         InOut = .5;
-        //SCAdelta = 0.05;
+        SCAdelta = 0.05;
         plowdelta = 0.05;
         pL = 0.61;
         pLdelta = plowdelta;
         pR = 0.39;
         pRdelta = -plowdelta;
+        */
         /*
         plowLeft.setPosition(pL);
         plowRight.setPosition(pR);
-        */
+
         catapult.setPosition(CATAPULT_DOWN);
-        //armColorSensor.setPosition(SCA);
-        a_state = 0;
+        armColorSensor.setPosition(SCA);
+        */
+        current_state = States.INIT_MOTORS;
 
         update_encoders();
     }
@@ -80,41 +93,50 @@ public class DR_Auto_TestBF extends OpMode{
         //SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
-        /*telemetry.addData("Encoder LR", motorLeftRear.getCurrentPosition());
-        telemetry.addData("Encoder RR", motorRightRear.getCurrentPosition());
-        telemetry.addData("Encoder LF", motorLeftFront.getCurrentPosition());
-        telemetry.addData("Encoder RF", motorRightFront.getCurrentPosition()); */
+
+        // Update encoder values
         currentEncLR = LR_enc;
         currentEncLF = LF_enc;
         currentEncRR = RR_enc;
         currentEncRF = RF_enc;
-        switch (a_state){
-            case 0:
-                telemetry.addData("Case", "0");
+
+        switch (current_state) {
+            // Setup motor encoders
+            case INIT_MOTORS:
                 telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
                 telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
-                a_state++;
+                current_state = States.DRIVE_FORWARD;
                 break;
-            case 1:
-                telemetry.addData("Case", "1");
-                set_motor_power(1.0,1.0,1.0,1.0);
+
+            case DRIVE_FORWARD:
+                // Drive forward at 100% power
+                set_motor_power(1.0, 1.0, 1.0, 1.0);
                 telemetry.addData("Encoder Front", +motorLeftFront.getCurrentPosition());
                 telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
-                if (has_Left_encoder_reached(7500))
-                {
+                if (has_Left_encoder_reached(9500)) {
                     telemetry.addData("Test:", "enc_reached");
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     sleep(500);
-                    a_state++;
+                    current_state = States.PIVOT;
                 }
                 break;
-            case 2:
+
+            case PIVOT:
+                set_motor_power(0.5, -0.5, 0.5, -0.5);
+                if (has_Left_encoder_reached(1000)) {
+                    set_motor_power(0, 0, 0, 0);
+                    //current_state = States.DUMP_PEOPLE;
+                }
+                break;
+
+            case DUMP_PEOPLE:
+                // Raise the servo with the people
                 if (SLOW_INCREMENT) {
-                    for (double position = catapult.getPosition(); position > CATAPULT_UP; position -= CATAPULT_DELTA){
+                    for (double position = catapult.getPosition(); position > CATAPULT_UP; position -= CATAPULT_DELTA) {
                         catapult.setPosition(position);
                         telemetry.addData("Catapult Position", position);
                     }
@@ -122,84 +144,20 @@ public class DR_Auto_TestBF extends OpMode{
                     catapult.setPosition(CATAPULT_UP);
                 }
                 break;
-             /*case 2:
-                telemetry.addData("Case", "2");
-                update_encoders();
-                telemetry.addData("Enc_Count2", LR_enc);
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                update_encoders();
-                telemetry.addData("Enc_Count3", LR_enc);
-                telemetry.addData("encodersAreZero", encodersAreZero());
-                set_motor_power(0.5, -0.5, 0.5, -0.5);
-                if (has_Left_encoder_reached(LR_enc + 3000))
-                {
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    sleep(500);
-                    a_state++;
-                }
-                else
-                {
-                    telemetry.addData("Waiting in case 2", "True");
-                }
-                break;
-            case 3:
-                telemetry.addData("Case", "3");
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                set_motor_power(0.5, 0.5, 0.5, 0.5);
-                if (has_Left_encoder_reached(LR_enc + 4000))
-                {
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    sleep(500);
-                    a_state++;
-                }
-                else
-                {
-                    telemetry.addData("Waiting in case 3", "True");
-                }
-                break;
-            case 4:
-                telemetry.addData("Case", "4");
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                set_motor_power(0.5, -0.5, 0.5, -0.5);
-                if (has_Left_encoder_reached(LR_enc + 1000))
-                {
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    sleep(500);
-                    a_state++;
-                }
-                break;
-            case 5:
-                telemetry.addData("Case", "5");
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                set_motor_power(0.5, 0.5, 0.5, 0.5);
-                if (LR_enc > (LR_enc + 2000))
-                {
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    sleep(500);
-                    a_state++;
-                }
-                break;
-            case 6:
-                telemetry.addData("Case", "6");
-                telemetry.addData("Stopped", 0.0);
-                break;
-                */
             default:
-                telemetry.addData("Case", "Default");
-                telemetry.addData("Default Case Reached", "True");
+                telemetry.addData("Case", "You all done");
                 break;
         }
     }
-    public void set_motor_power(double LR_power, double RR_power, double LF_power, double RF_power)
-    {
+
+    public void set_motor_power(double LR_power, double RR_power, double LF_power, double RF_power) {
         motorLeftRear.setPower(LR_power);
         motorRightRear.setPower(RR_power);
         motorLeftFront.setPower(LF_power);
         motorRightFront.setPower(RF_power);
     }
     public void set_drive_mode(DcMotorController.RunMode mode) {
-        if (motorLeftRear.getChannelMode() != mode)
-        {
+        if (motorLeftRear.getChannelMode() != mode) {
             motorLeftRear.setChannelMode(mode);
         }
         if (motorRightRear.getChannelMode() != mode)
@@ -233,7 +191,7 @@ public class DR_Auto_TestBF extends OpMode{
         if (motorLeftRear != null)
         {
             if (
-                    (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
+                (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
             {
                 returnLRe = true;
             }

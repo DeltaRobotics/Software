@@ -22,8 +22,11 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
-
-    /*Servo plowLeft;
+    //Servo catapult;
+    /*
+    double catapultPosition  = 0.5;
+    double catapultDelta = 0.005;
+    Servo plowLeft;
     Servo plowRight;
     Servo plowInOut;
     //Servo armColorSensor;
@@ -55,7 +58,10 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
         motorRightRear.setDirection(DcMotor.Direction.REVERSE);
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
-/*
+        /*
+        catapult = hardwareMap.servo.get("Catapult");
+        catapult.setPosition(0.5);
+
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
@@ -63,7 +69,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowRight.setPosition(.39);
         plowInOut.setPosition(.45);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
-*/
+        */
         speed_mode = true;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
@@ -127,7 +133,15 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRightRear.setPower(throttleRB);
         motorRightFront.setPower(throttleRF);
 
-        /*if (gamepad2.right_bumper)
+        /*
+        if (gamepad2.dpad_up) {
+            catapultPosition -= catapultDelta;
+        }
+        if (gamepad2.dpad_down){
+            catapultPosition += catapultDelta;
+        }
+
+        if (gamepad2.right_bumper)
         {
             plowPositionLeft += plowDeltaLeft;
             plowPositionRight += plowDeltaRight;
@@ -170,6 +184,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         //armColorSensor.setPosition(armColorSensorPosition);
 */
 
+        //catapult.setPosition(catapultPosition);
 
         telemetry.addData("Left Rear:"
                 ,   +motorLeftRear.getPower()
