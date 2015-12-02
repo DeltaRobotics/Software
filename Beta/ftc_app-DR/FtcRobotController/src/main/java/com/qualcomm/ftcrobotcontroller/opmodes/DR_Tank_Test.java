@@ -22,16 +22,16 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
-    //Servo catapult;
-    /*
-    double catapultPosition  = 0.5;
-    double catapultDelta = 0.005;
+    Servo catapult;
+
+    double catapultPosition  = 0.909;
+    double catapultDelta = 0.001;
     Servo plowLeft;
     Servo plowRight;
     Servo plowInOut;
-    //Servo armColorSensor;
+    Servo armColorSensor;
 
-    double plowDelta = 0.005;
+    double plowDelta = 0.001;
     double plowDeltaLeft = plowDelta;
     double plowDeltaRight = -plowDelta;
     double plowPositionLeft = 0.5;
@@ -39,7 +39,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     double inOutPosition = 0.0;
     double inOutDelta = 0.005;
     //double armColorSensorPosition = 0.8;
-*/
+
     boolean speed_mode;
     //Initialize the Accelerometer
     //private SensorManager mSensorManager;
@@ -58,18 +58,18 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
         motorRightRear.setDirection(DcMotor.Direction.REVERSE);
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
-        /*
+
         catapult = hardwareMap.servo.get("Catapult");
-        catapult.setPosition(0.5);
+        catapult.setPosition(0.909);
 
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
-        plowLeft.setPosition(.61);
-        plowRight.setPosition(.39);
-        plowInOut.setPosition(.45);
+        plowLeft.setPosition(.576);
+        plowRight.setPosition(.4196);
+        plowInOut.setPosition(.455);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
-        */
+
         speed_mode = true;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
@@ -86,9 +86,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
     public void loop() {
-        //plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
-       // plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
-        //inOutPosition = Range.clip(inOutPosition,0.02,0.98);
+        plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
+        plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
+        inOutPosition = Range.clip(inOutPosition,0.18,0.78);
 
         float throttleLB = gamepad1.left_stick_y;
         float throttleRB = gamepad1.right_stick_y;
@@ -133,7 +133,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         motorRightRear.setPower(throttleRB);
         motorRightFront.setPower(throttleRF);
 
-        /*
+
         if (gamepad2.dpad_up) {
             catapultPosition -= catapultDelta;
         }
@@ -182,9 +182,8 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowLeft.setPosition(plowPositionLeft);
         plowRight.setPosition(plowPositionRight);
         //armColorSensor.setPosition(armColorSensorPosition);
-*/
 
-        //catapult.setPosition(catapultPosition);
+        catapult.setPosition(catapultPosition);
 
         telemetry.addData("Left Rear:"
                 ,   +motorLeftRear.getPower()
@@ -198,9 +197,10 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
                 telemetry.addData("Right Front:"
                 ,   + motorRightFront.getPower()
                     + motorRightFront.getCurrentPosition());
-                //telemetry.addData("Left Plow:", plowLeft.getPosition());
-                //telemetry.addData("Right Plow:", plowRight.getPosition());
-                //telemetry.addData("InOut Plow:", plowInOut.getPosition());
+                telemetry.addData("Left Plow:", plowLeft.getPosition());
+                telemetry.addData("Right Plow:", plowRight.getPosition());
+                telemetry.addData("InOut Plow:", plowInOut.getPosition());
+                telemetry.addData("Catapult:", catapult.getPosition());
 
 
         //telemetry.addData("X Accelerometer", accelX);

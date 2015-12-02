@@ -27,7 +27,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
     double pRdelta;
     double plowdelta;
     double InOut;
-    private int a_state;
+    private int a_state = 0;
     private int LR_enc;
     private int RR_enc;
     private int LF_enc;
@@ -36,17 +36,12 @@ public class DR_Auto_PeopleTurn extends OpMode{
     private int currentEncLF;
     private int currentEncRR;
     private int currentEncRF;
-    final private double CATAPULT_UP = 0.156;
-    final private double CATAPULT_DOWN = 0.858;
+    final private double CATAPULT_UP = 0.1882;
+    final private double CATAPULT_DOWN = 0.909;
     final private double CATAPULT_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
 
-    enum States {
-        INIT_MOTORS,
-        DRIVE_FORWARD,
-        PIVOT,
-        DUMP_PEOPLE
-    };
+    enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DUMP_PEOPLE, STOP};
 
     States current_state;
 
@@ -61,34 +56,36 @@ public class DR_Auto_PeopleTurn extends OpMode{
 
         set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
 
-        /*
+
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
         //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
         catapult = hardwareMap.servo.get("Catapult");
-        SCA = 0.80;
-        InOut = .5;
-        SCAdelta = 0.05;
+        //SCA = 0.80;
+        InOut = .455;
+        plowInOut.setPosition(InOut);
+        //SCAdelta = 0.05;
         plowdelta = 0.05;
-        pL = 0.61;
+        pL = 0.576;
         pLdelta = plowdelta;
-        pR = 0.39;
+        pR = 0.4196;
         pRdelta = -plowdelta;
-        */
-        /*
+
+
         plowLeft.setPosition(pL);
         plowRight.setPosition(pR);
 
         catapult.setPosition(CATAPULT_DOWN);
-        armColorSensor.setPosition(SCA);
-        */
+        //armColorSensor.setPosition(SCA);
+
         current_state = States.INIT_MOTORS;
 
         update_encoders();
     }
     public void loop(){
-        telemetry.addData("Case", "X");
+        a_state++;
+        telemetry.addData("Case", current_state);
         telemetry.addData("a_state", a_state);
         //SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
@@ -114,36 +111,60 @@ public class DR_Auto_PeopleTurn extends OpMode{
 
             case DRIVE_FORWARD:
                 // Drive forward at 100% power
+                plowLeft.setPosition(0.0196);
+                plowRight.setPosition(0.9686);
+                //sleep(100);
+
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 telemetry.addData("Encoder Front", +motorLeftFront.getCurrentPosition());
                 telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
+                //sleep(100);
                 if (has_Left_encoder_reached(9500)) {
                     telemetry.addData("Test:", "enc_reached");
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    sleep(500);
                     current_state = States.PIVOT;
+                    telemetry.addData("Test1", "if_statement");
+                    break;
+                    }
+                else {
+                    telemetry.addData("Test1", "else_statement");
                 }
                 break;
 
             case PIVOT:
-                set_motor_power(0.5, -0.5, 0.5, -0.5);
-                if (has_Left_encoder_reached(1000)) {
+                sleep (1000);
+                set_motor_power(0.8, -0.8, 0.8, -0.8);
+                if (has_Left_encoder_reached(14000)) {
                     set_motor_power(0, 0, 0, 0);
-                    //current_state = States.DUMP_PEOPLE;
+                    current_state = States.DUMP_PEOPLE;
                 }
                 break;
 
             case DUMP_PEOPLE:
                 // Raise the servo with the people
+                /*
                 if (SLOW_INCREMENT) {
                     for (double position = catapult.getPosition(); position > CATAPULT_UP; position -= CATAPULT_DELTA) {
                         catapult.setPosition(position);
+                        sleep (250);
                         telemetry.addData("Catapult Position", position);
                     }
                 } else {
                     catapult.setPosition(CATAPULT_UP);
                 }
+                */
+                plowLeft.setPosition(0.0196);
+                plowRight.setPosition(0.9686);
+                catapult.setPosition(0.1882);
+                current_state = States.STOP;
                 break;
+            case STOP:
+                telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+                telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
+                telemetry.addData("Test:", "reset_enc");
+                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                telemetry.addData("Test:", "run_enc");
             default:
                 telemetry.addData("Case", "You all done");
                 break;
