@@ -40,8 +40,10 @@ public class DR_Auto_PeopleTurn extends OpMode{
     final private double CATAPULT_DOWN = 0.909;
     final private double CATAPULT_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
+    private int x = 0;
 
-    enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DUMP_PEOPLE, STOP};
+
+    enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DRIVE_FORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2};
 
     States current_state;
 
@@ -87,6 +89,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
         a_state++;
         telemetry.addData("Case", current_state);
         telemetry.addData("a_state", a_state);
+        telemetry.addData("X:", x);
         //SCA = Range.clip(SCA, 0.05, 0.9);
         pL = Range.clip(pL, 0.05, 0.9);
         pR = Range.clip(pR, 0.05, 0.9);
@@ -106,24 +109,44 @@ public class DR_Auto_PeopleTurn extends OpMode{
                 telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
+                plowLeft.setPosition(0.0196);
+                plowRight.setPosition(0.9686);
+                plowInOut.setPosition(0.15);
+                //sleep(100);
+                set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
                 break;
 
+            case RESTBPIVOT:
+                sleep(500);
+                current_state = States.SETUP_PIVOT;
+                break;
+            case RESTBDRIVE_FORWARD2:
+                sleep(500);
+                current_state = States.SETUP_DRIVE_FORWARD2;
+                break;
+            case SETUP_PIVOT:
+                set_motor_power(0.8, -0.8, 0.8, -0.8);
+                current_state = States.PIVOT;
+                break;
+            case SETUP_DRIVE_FORWARD2:
+                set_motor_power(1.0,1.0,1.0,1.0);
+                current_state = States.DRIVE_FORWARD2;
+                break;
             case DRIVE_FORWARD:
                 // Drive forward at 100% power
-                plowLeft.setPosition(0.0196);
-                plowRight.setPosition(0.9686);
-                //sleep(100);
-
-                set_motor_power(1.0, 1.0, 1.0, 1.0);
                 telemetry.addData("Encoder Front", +motorLeftFront.getCurrentPosition());
                 telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
                 //sleep(100);
-                if (has_Left_encoder_reached(9500)) {
+                if (has_Left_encoder_reached(x + 14500)) {
+                    motorLeftRear.setPower(0);
+                    motorRightRear.setPower(0);
+                    motorLeftFront.setPower(0);
+                    motorRightFront.setPower(0);
                     telemetry.addData("Test:", "enc_reached");
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    current_state = States.PIVOT;
+                    current_state = States.RESTBPIVOT;
                     telemetry.addData("Test1", "if_statement");
+                    x = motorLeftFront.getCurrentPosition();
                     break;
                     }
                 else {
@@ -132,15 +155,20 @@ public class DR_Auto_PeopleTurn extends OpMode{
                 break;
 
             case PIVOT:
-                sleep (1000);
-                set_motor_power(0.8, -0.8, 0.8, -0.8);
-                if (has_Left_encoder_reached(14000)) {
+                if (has_Left_encoder_reached(x + 2400)) {
                     set_motor_power(0, 0, 0, 0);
-                    current_state = States.DUMP_PEOPLE;
+                    current_state = States.RESTBDRIVE_FORWARD2;
+                    x = motorLeftFront.getCurrentPosition();
+                    telemetry.addData("Test1", "wait_before_forward");
+                    break;
+                }
+                else {
+                    telemetry.addData("Test1", "else_statement");
+                    telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
                 }
                 break;
 
-            case DUMP_PEOPLE:
+            case DRIVE_FORWARD2:
                 // Raise the servo with the people
                 /*
                 if (SLOW_INCREMENT) {
@@ -153,9 +181,21 @@ public class DR_Auto_PeopleTurn extends OpMode{
                     catapult.setPosition(CATAPULT_UP);
                 }
                 */
+
+                if (has_Left_encoder_reached(x + 1200)) {
+                    set_motor_power(0, 0, 0, 0);
+                    current_state = States.DUMP_PEOPLE;
+                    break;
+                }
+                else {
+                    telemetry.addData("Test1", "else");
+                }
+                break;
+            case DUMP_PEOPLE:
                 plowLeft.setPosition(0.0196);
                 plowRight.setPosition(0.9686);
                 catapult.setPosition(0.1882);
+                sleep(1000);
                 current_state = States.STOP;
                 break;
             case STOP:
@@ -165,6 +205,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
                 telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
+                break;
             default:
                 telemetry.addData("Case", "You all done");
                 break;
