@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Delta on 10/10/2015.
  */
-public class DR_Auto_PeopleTurn extends OpMode{
+public class DR_Auto_People_Turn_Wait extends OpMode{
 
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
@@ -43,7 +43,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
     private int x = 0;
 
 
-    enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DRIVE_FORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2};
+    enum States {INIT_MOTORS,WAIT,DRIVE_FORWARD,PIVOT,DRIVE_FORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2};
 
     States current_state;
 
@@ -66,7 +66,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
         catapult = hardwareMap.servo.get("Catapult");
         //SCA = 0.80;
         //InOut = .455;
-       // plowInOut.setPosition(InOut);
+        // plowInOut.setPosition(InOut);
         //SCAdelta = 0.05;
         plowdelta = 0.05;
         pL = 0.576;
@@ -81,7 +81,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
         catapult.setPosition(CATAPULT_DOWN);
         //armColorSensor.setPosition(SCA);
 
-        current_state = States.INIT_MOTORS;
+        current_state = States.WAIT;
 
         update_encoders();
     }
@@ -102,6 +102,11 @@ public class DR_Auto_PeopleTurn extends OpMode{
 
         switch (current_state) {
             // Setup motor encoders
+            case WAIT:
+                telemetry.addData("Sleeping", "Yes");
+                sleep(8000);
+                current_state = States.INIT_MOTORS;
+                break;
             case INIT_MOTORS:
                 telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -109,7 +114,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
                 telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
-               // plowLeft.setPosition(0.0196);
+                // plowLeft.setPosition(0.0196);
                 //plowRight.setPosition(0.9686);
                 //plowInOut.setPosition(0.15);
                 //sleep(100);
@@ -148,7 +153,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
                     telemetry.addData("Test1", "if_statement");
                     x = motorLeftFront.getCurrentPosition();
                     break;
-                    }
+                }
                 else {
                     telemetry.addData("Test1", "else_statement");
                 }
@@ -253,7 +258,7 @@ public class DR_Auto_PeopleTurn extends OpMode{
         if (motorLeftRear != null)
         {
             if (
-                (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
+                    (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
             {
                 returnLRe = true;
             }

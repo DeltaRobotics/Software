@@ -26,9 +26,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
 
     double catapultPosition  = 0.909;
     double catapultDelta = 0.001;
-    Servo plowLeft;
-    Servo plowRight;
-    Servo plowInOut;
+    //Servo plowLeft;
+    //Servo plowRight;
+    //Servo plowInOut;
     Servo armColorSensor;
 
     double plowDelta = 0.001;
@@ -62,12 +62,12 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         catapult = hardwareMap.servo.get("Catapult");
         catapult.setPosition(0.909);
 
-        plowLeft = hardwareMap.servo.get ("Left_Plow");
-        plowRight = hardwareMap.servo.get ("Right_Plow");
-        plowInOut = hardwareMap.servo.get ("InOut_Plow");
-        plowLeft.setPosition(.576);
-        plowRight.setPosition(.4196);
-        plowInOut.setPosition(.455);
+        //plowLeft = hardwareMap.servo.get ("Left_Plow");
+        //plowRight = hardwareMap.servo.get ("Right_Plow");
+        //plowInOut = hardwareMap.servo.get ("InOut_Plow");
+        //plowLeft.setPosition(.576);
+        //plowRight.setPosition(.4196);
+        //plowInOut.setPosition(.455);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
 
         speed_mode = true;
@@ -86,9 +86,11 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
     public void loop() {
-        plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
-        plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
-        inOutPosition = Range.clip(inOutPosition,0.18,0.78);
+        //plowPositionLeft = Range.clip(plowPositionLeft,0.02,0.70);
+        //plowPositionRight = Range.clip(plowPositionRight,0.30,0.97);
+        //inOutPosition = Range.clip(inOutPosition,0.18,0.78);
+
+        catapultPosition = Range.clip(catapultPosition, 0.01, 0.959);
 
         float throttleLB = gamepad1.left_stick_y;
         float throttleRB = gamepad1.right_stick_y;
@@ -141,7 +143,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             catapultPosition += catapultDelta;
         }
 
-        if (gamepad2.right_bumper)
+        /*if (gamepad2.right_bumper)
         {
             plowPositionLeft += plowDeltaLeft;
             plowPositionRight += plowDeltaRight;
@@ -177,10 +179,10 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         {
             inOutPosition = 0.83;
         }
-
-        plowInOut.setPosition(inOutPosition);
-        plowLeft.setPosition(plowPositionLeft);
-        plowRight.setPosition(plowPositionRight);
+         */
+        //plowInOut.setPosition(inOutPosition);
+        //plowLeft.setPosition(plowPositionLeft);
+        //plowRight.setPosition(plowPositionRight);
         //armColorSensor.setPosition(armColorSensorPosition);
 
         catapult.setPosition(catapultPosition);
@@ -197,9 +199,9 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
                 telemetry.addData("Right Front:"
                 ,   + motorRightFront.getPower()
                     + motorRightFront.getCurrentPosition());
-                telemetry.addData("Left Plow:", plowLeft.getPosition());
-                telemetry.addData("Right Plow:", plowRight.getPosition());
-                telemetry.addData("InOut Plow:", plowInOut.getPosition());
+                //telemetry.addData("Left Plow:", plowLeft.getPosition());
+                //telemetry.addData("Right Plow:", plowRight.getPosition());
+                //telemetry.addData("InOut Plow:", plowInOut.getPosition());
                 telemetry.addData("Catapult:", catapult.getPosition());
 
 
