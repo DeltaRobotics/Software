@@ -15,10 +15,11 @@ public class DR_Red extends OpMode {
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
     //Servo armColorSensor;
-    //Servo plowLeft;
-    //Servo plowRight;
-    //Servo plowInOut;
-    Servo catapult;
+    Servo plowLeft;
+    Servo plowRight;
+    Servo plowInOut;
+    Servo catLeft;
+    Servo catRight;
     //double SCA;
     //double SCAdelta;
     double pL;
@@ -26,7 +27,10 @@ public class DR_Red extends OpMode {
     double pR;
     double pRdelta;
     double plowdelta;
+    double plowUp = 0.9;
     double InOut;
+    double pldown = 0.7607843;
+    double prdown = 0.11372549;
     private int a_state = 0;
     private int LR_enc;
     private int RR_enc;
@@ -36,9 +40,9 @@ public class DR_Red extends OpMode {
     private int currentEncLF;
     private int currentEncRR;
     private int currentEncRF;
-    final private double CATAPULT_UP = 0.1882;
-    final private double CATAPULT_DOWN = 0.909;
-    final private double CATAPULT_DELTA = 0.001;
+    final private double CATLeft_UP = 0.1882;
+    final private double CATLeft_DOWN = 0.909;
+    final private double CATLeft_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
     private int x = 0;
 
@@ -59,26 +63,24 @@ public class DR_Red extends OpMode {
         set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
 
 
-        //plowLeft = hardwareMap.servo.get("Left_Plow");
-        //plowRight = hardwareMap.servo.get("Right_Plow");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
         //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
-        //plowInOut = hardwareMap.servo.get("InOut_Plow");
-        catapult = hardwareMap.servo.get("Catapult");
+        plowInOut = hardwareMap.servo.get("InOut_Plow");
+        catLeft = hardwareMap.servo.get("CatLeft");
         //SCA = 0.80;
-        //InOut = .455;
-        // plowInOut.setPosition(InOut);
+        InOut = .455;
+        plowInOut.setPosition(InOut);
         //SCAdelta = 0.05;
         plowdelta = 0.05;
-        pL = 0.576;
+        pL = 0.23137255;
         pLdelta = plowdelta;
-        pR = 0.4196;
+        pR = 0.64705884;
         pRdelta = -plowdelta;
+        plowLeft.setPosition(pL);
+        plowRight.setPosition(pR);
 
-
-        //plowLeft.setPosition(pL);
-        //plowRight.setPosition(pR);
-
-        catapult.setPosition(CATAPULT_DOWN);
+        catLeft.setPosition(CATLeft_DOWN);
         //armColorSensor.setPosition(SCA);
 
         current_state = States.INIT_MOTORS;
@@ -103,16 +105,26 @@ public class DR_Red extends OpMode {
         switch (current_state) {
             // Setup motor encoders
             case INIT_MOTORS:
+                while(pldown >= pL && prdown <= pR) {
+                    pL += 0.002;
+                    pR -= 0.002;
+                    pL = Range.clip(pL,0.10,0.8);
+                    pR = Range.clip(pR,0.10,0.8);
+                    plowLeft.setPosition(pL);
+                    plowRight.setPosition(pR);
+
+                }
                 telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
                 telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 telemetry.addData("Test:", "run_enc");
+
                 // plowLeft.setPosition(0.0196);
                 //plowRight.setPosition(0.9686);
-                //plowInOut.setPosition(0.15);
-                //sleep(100);
+                plowInOut.setPosition(0.25);
+                sleep(100);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
                 break;
@@ -182,6 +194,8 @@ public class DR_Red extends OpMode {
                 }
                 */
 
+                //CatRight up position is .70
+
                 if (has_Left_encoder_reached(x + 1200)) {
                     set_motor_power(0, 0, 0, 0);
                     current_state = States.DUMP_PEOPLE;
@@ -194,7 +208,7 @@ public class DR_Red extends OpMode {
             case DUMP_PEOPLE:
                 //plowLeft.setPosition(0.0196);
                 //plowRight.setPosition(0.9686);
-                catapult.setPosition(0.1882);
+                catLeft.setPosition(0.1882);
                 sleep(1000);
                 current_state = States.STOP;
                 break;
@@ -296,6 +310,7 @@ public class DR_Red extends OpMode {
         LF_enc = motorLeftFront.getCurrentPosition();
         RF_enc = motorRightFront.getCurrentPosition();
     }
+
 
 
 }
