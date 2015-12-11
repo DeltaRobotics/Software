@@ -64,15 +64,13 @@ public class MRRGBExample extends LinearOpMode {
     hardwareMap.logDevices();
 
     // get a reference to our ColorSensor object.
-    sensorRGB = hardwareMap.colorSensor.get("Color_Sensor");
+    sensorRGB = hardwareMap.colorSensor.get("mr");
 
     // bEnabled represents the state of the LED.
     boolean bEnabled = true;
 
     // turn the LED on in the beginning, just so user will know that the sensor is active.
-    //sensorRGB.enableLed(true);
-    //sensorRGB.enableLed(false);
-
+    sensorRGB.enableLed(true);
 
     // wait one cycle.
     waitOneFullHardwareCycle();
@@ -81,7 +79,7 @@ public class MRRGBExample extends LinearOpMode {
     waitForStart();
 
     // hsvValues is an array that will hold the hue, saturation, and value information.
-    float hsvValues[] = {6F,6F,6F};
+    float hsvValues[] = {0F,0F,0F};
 
     // values is a reference to the hsvValues array.
     final float values[] = hsvValues;
@@ -94,19 +92,14 @@ public class MRRGBExample extends LinearOpMode {
     boolean bPrevState = false;
     boolean bCurrState = false;
 
-    float ColorCompare;
-    float RvsB;
-
     // while the op mode is active, loop and read the RGB data.
     // Note we use opModeIsActive() as our loop condition because it is an interruptible method.
     while (opModeIsActive()) {
-
-      //check the status of the x button on either gamepad.
+      // check the status of the x button on either gamepad.
       bCurrState = gamepad1.x || gamepad2.x;
-      //sensorRGB.enableLed(bEnabled);
 
       // check for button state transitions.
-      /* if (bCurrState == true && bCurrState != bPrevState)  {
+      if (bCurrState == true && bCurrState != bPrevState)  {
         // button is transitioning to a pressed state.
 
         // print a debug statement.
@@ -133,45 +126,19 @@ public class MRRGBExample extends LinearOpMode {
         bEnabled = false;
 
         // turn off the LED.
-        */
-        sensorRGB.enableLed(gamepad1.x);
-
+        sensorRGB.enableLed(false);
+      }
 
       // convert the RGB values to HSV values.
       //Color.RGBToHSV((sensorRGB.red() * 8), (sensorRGB.green() * 8), (sensorRGB.blue() * 8), hsvValues);
-      Color.RGBToHSV(sensorRGB.red() * 8, sensorRGB.green() * 8, sensorRGB.blue() * 8, hsvValues);
+      Color.RGBToHSV(sensorRGB.red()*8, sensorRGB.green()*8, sensorRGB.blue()*8, hsvValues);
 
-
-      RvsB = Math.abs(sensorRGB.blue() - sensorRGB.red());
-
-      if (RvsB >= 2 && sensorRGB.red() > sensorRGB.blue())
-      {
-        telemetry.addData("RED!", sensorRGB.red());
-      }
-      else if (RvsB >= 2 && sensorRGB.blue() > sensorRGB.red())
-      {
-        telemetry.addData("BLUE!", sensorRGB.blue());
-      }
-      else
-      {
-        telemetry.addData("No Color Found -- Object Reference", sensorRGB.toString());
-        telemetry.addData("Clear", sensorRGB.alpha());
-        telemetry.addData("Red  ", sensorRGB.red());
-        telemetry.addData("Green", sensorRGB.green());
-        telemetry.addData("Blue ", sensorRGB.blue());
-        telemetry.addData("Hue", hsvValues[0]);
-      }
-
-
-      // send the infoaback to driver station using telemetry function.
-      /*telemetry.addData("x button pressed", gamepad1.x);
-      telemetry.addData("Object Reference ", sensorRGB.toString());
+      // send the info back to driver station using telemetry function.
       telemetry.addData("Clear", sensorRGB.alpha());
       telemetry.addData("Red  ", sensorRGB.red());
       telemetry.addData("Green", sensorRGB.green());
       telemetry.addData("Blue ", sensorRGB.blue());
-      telemetry.addData("Hue", hsvValues[0]); */
-
+      telemetry.addData("Hue", hsvValues[0]);
 
       // change the background color to match the color detected by the RGB sensor.
       // pass a reference to the hue, saturation, and value array as an argument
@@ -181,11 +148,9 @@ public class MRRGBExample extends LinearOpMode {
           relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
         }
       });
-      }
 
       // wait a hardware cycle before iterating.
       waitOneFullHardwareCycle();
     }
-
   }
-//}
+}

@@ -141,9 +141,9 @@ public class DR_Tank_Test extends OpMode{
         }
 
 
-        motorLeftRear.setPower(-throttleLB);
-        motorLeftFront.setPower(-throttleLF);
-        motorRightRear.setPower(throttleRB);
+        motorLeftRear.setPower(throttleRB);
+        motorLeftFront.setPower(throttleLF);
+        motorRightRear.setPower(throttleLB);
         motorRightFront.setPower(throttleRF);
 
 
@@ -183,12 +183,12 @@ public class DR_Tank_Test extends OpMode{
         {
             plowPositionLeft = 0.61;
             plowPositionRight = 0.39;
-        }*/
-       /* if (gamepad2.a)
-        {
+        }
+        if (gamepad2.a) {
             plowPositionLeft = 0.05;
             plowPositionRight = 0.95;
-        }*/
+        }
+        */
         if (gamepad2.b)
         {
             inOutPosition = 0.001;
