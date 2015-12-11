@@ -55,25 +55,25 @@ public class FtcOpModeRegister implements OpModeRegister {
      * If two or more op modes are registered with the same name, the app will display an error.
      */
 
-    manager.register("NullOp", NullOp.class);
+    //manager.register("NullOp", NullOp.class);
 
     //manager.register("K9TeleOp", K9TeleOp.class);
     //manager.register("K9AutoTime", K9AutoTime.class);
     //manager.register ("PushBotAuto", PushBotAuto.class);
     //manager.register ("PushBotManual", PushBotManual.class);
     manager.register ("DR_Red" , DR_Red.class);
-    manager.register("DR_Auto_TestBC" , DR_Auto_TestBC.class);
-    manager.register("DR_Auto_TestRF" , DR_Auto_TestRF.class);
-    manager.register("DR_Auto_TestRC" , DR_Auto_TestRC.class);
-    manager.register("DR_Auto_PeopleTurn" , DR_Auto_PeopleTurn.class);
-    manager.register("DR_Auto_People_Turn_Wait", DR_Auto_People_Turn_Wait.class);
+   // manager.register("DR_Auto_TestBC" , DR_Auto_TestBC.class);
+    //manager.register("DR_Auto_TestRF" , DR_Auto_TestRF.class);
+    //manager.register("DR_Auto_TestRC" , DR_Auto_TestRC.class);
+    //manager.register("DR_Auto_PeopleTurn" , DR_Auto_PeopleTurn.class);
+    //manager.register("DR_Auto_People_Turn_Wait", DR_Auto_People_Turn_Wait.class);
 
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
 
     //manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
-    manager.register("MRRGBExample", MRRGBExample.class);
+   // manager.register("MRRGBExample", MRRGBExample.class);
     //manager.register("ColorSensorDriver", ColorSensorDriver.class);
     //manager.register("HTRGBExample", HTRGBExample.class);
 

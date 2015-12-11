@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 /**
  * Created by Delta on 9/30/2015.
  */
-public class DR_Tank_Test extends OpMode implements SensorEventListener{
+public class DR_Tank_Test extends OpMode{
 
     //public float accelX = 0;
     //public float accelY = 0;
@@ -71,14 +71,16 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
         plowInOut = hardwareMap.servo.get ("InOut_Plow");
-        plowLeft.setPosition(0.23137255);
-        plowRight.setPosition(0.64705884);
-        plowInOut.setPosition(.455);
+        //plowLeft.setPosition(0.23137255);
+        //plowRight.setPosition(0.64705884);
+        //plowInOut.setPosition(.455);
         //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
         //plowPositionLeft = 0.7697843;
         //plowPositionRight = 0.11372549;
 
         speed_mode = true;
+        plowLeft.setPosition(0.7607843);
+        plowRight.setPosition(0.11372549);
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -90,16 +92,16 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
     //}
 
        //}
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+   // @Override
+   // public void onAccuracyChanged(Sensor sensor, int accuracy) {
+   // }
     public void loop() {
         plowPositionLeft = Range.clip(plowPositionLeft,0.10,0.80);
         plowPositionRight = Range.clip(plowPositionRight,0.10,0.8);
         inOutPosition = Range.clip(inOutPosition,0.18,0.78);
 
         catLeftPosition = Range.clip(catLeftPosition, 0.01, 0.959);
-        catRightPosition = Range.clip(catRightPosition, 0.001, 0.710);
+        catRightPosition = Range.clip(catRightPosition, 0.01, 0.710);
 
         float throttleLB = gamepad1.left_stick_y;
         float throttleRB = gamepad1.right_stick_y;
@@ -227,10 +229,11 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
         //telemetry.addData("Y Accelerometer", accelY);
         //telemetry.addData("Z Accelerometer", accelZ);
 
-    }
-@Override
-        public void onSensorChanged(SensorEvent event)
-        {
+}
+    //possible issue
+//@Override
+       // public void onSensorChanged(SensorEvent event)
+       // {
             /*telemetry.addData ("ASensor", "Sensor Hit");
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
             {
@@ -252,7 +255,7 @@ public class DR_Tank_Test extends OpMode implements SensorEventListener{
             }
             */
 
-            }
+          //  }
     double scaleInputRearHigh(double dVal) {
         double[] scaleArray = {0.0, 0.05, 0.09, 0.10, 0.12, 0.15, 0.18, 0.24,
                 0.30, 0.36, 0.43, 0.50, 0.60, 0.72, 0.85, 1.00, 1.00};
