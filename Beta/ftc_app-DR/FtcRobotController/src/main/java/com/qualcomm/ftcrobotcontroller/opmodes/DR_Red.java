@@ -40,9 +40,12 @@ public class DR_Red extends OpMode {
     private int currentEncLF;
     private int currentEncRR;
     private int currentEncRF;
-    final private double CATLeft_UP = 0.1882;
-    final private double CATLeft_DOWN = 0.909;
+    final private double CATLeft_UP = 0.114;
+    final private double CATLeft_DOWN = 0.886;
     final private double CATLeft_DELTA = 0.001;
+    final private double CATRight_UP = 0.802;
+    final private double CATRight_DOWN = 0.09;
+    final private double CATRight_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
     private int x = 0;
 
@@ -55,10 +58,10 @@ public class DR_Red extends OpMode {
     public void init() {
         motorLeftRear = hardwareMap.dcMotor.get("Drive_Left_Rear");
         motorRightRear = hardwareMap.dcMotor.get("Drive_Right_Rear");
-        motorLeftRear.setDirection(DcMotor.Direction.REVERSE);
+        motorRightRear.setDirection(DcMotor.Direction.REVERSE);
         motorLeftFront = hardwareMap.dcMotor.get("Drive_Left_Front");
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
-        motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
+        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
 
@@ -68,6 +71,7 @@ public class DR_Red extends OpMode {
         //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
         catLeft = hardwareMap.servo.get("CatLeft");
+        catRight = hardwareMap.servo.get("CatRight");
         //SCA = 0.80;
         InOut = .455;
         plowInOut.setPosition(InOut);
@@ -81,7 +85,8 @@ public class DR_Red extends OpMode {
         plowRight.setPosition(pR);
 
         catLeft.setPosition(CATLeft_DOWN);
-        //armColorSensor.setPosition(SCA);
+        catRight.setPosition(CATRight_DOWN);
+        //armColorSensor.setPosition(SCA);u
 
         current_state = States.INIT_MOTORS;
 
@@ -106,8 +111,8 @@ public class DR_Red extends OpMode {
             // Setup motor encoders
             case INIT_MOTORS:
                 while(pldown >= pL && prdown <= pR) {
-                    pL += 0.002;
-                    pR -= 0.002;
+                    pL += 0.001;
+                    pR -= 0.001;
                     pL = Range.clip(pL,0.10,0.8);
                     pR = Range.clip(pR,0.10,0.8);
                     plowLeft.setPosition(pL);
@@ -150,7 +155,7 @@ public class DR_Red extends OpMode {
                 telemetry.addData("Encoder Front", +motorLeftFront.getCurrentPosition());
                 telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
                 //sleep(100);
-                if (has_Left_encoder_reached(x + 13000)) {
+                if (has_Left_encoder_reached(x + 12000)) {
                     motorLeftRear.setPower(0);
                     motorRightRear.setPower(0);
                     motorLeftFront.setPower(0);
@@ -208,7 +213,7 @@ public class DR_Red extends OpMode {
             case DUMP_PEOPLE:
                 //plowLeft.setPosition(0.0196);
                 //plowRight.setPosition(0.9686);
-                catLeft.setPosition(0.1882);
+                catLeft.setPosition(CATLeft_UP);
                 sleep(1000);
                 current_state = States.STOP;
                 break;

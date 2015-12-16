@@ -41,6 +41,8 @@ public class DR_Tank_Test extends OpMode{
     double plowPositionRight = 0.5;
     double inOutPosition = 0.0;
     double inOutDelta = 0.005;
+
+    int rev = 3;
     //double armColorSensorPosition = 0.8;
 
     boolean speed_mode;
@@ -55,18 +57,20 @@ public class DR_Tank_Test extends OpMode{
     }
     public void init() {
 
-        motorLeftRear = hardwareMap.dcMotor.get ("Drive_Left_Rear");
-        motorRightRear = hardwareMap.dcMotor.get ("Drive_Right_Rear");
-        motorLeftFront = hardwareMap.dcMotor.get ("Drive_Left_Front");
-        motorRightFront = hardwareMap.dcMotor.get ("Drive_Right_Front");
-        motorRightRear.setDirection(DcMotor.Direction.REVERSE);
-        motorRightFront.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftRear = hardwareMap.dcMotor.get("Drive_Left_Rear");
+        motorRightRear = hardwareMap.dcMotor.get("Drive_Right_Rear");
+        //motorLeftRear.setDirection(DcMotor.Direction.REVERSE);
+        motorLeftFront = hardwareMap.dcMotor.get("Drive_Left_Front");
+        motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
+        //motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
 
         catLeft = hardwareMap.servo.get("CatLeft");
-        catLeft.setPosition(0.909);
+        catLeft.setPosition(0.586);
+        catLeftPosition = 0.586;
 
         catRight = hardwareMap.servo.get("CatRight");
-        catRight.setPosition(0.005);
+        catRight.setPosition(0.39);
+        catRightPosition = 0.39;
 
         plowLeft = hardwareMap.servo.get ("Left_Plow");
         plowRight = hardwareMap.servo.get ("Right_Plow");
@@ -81,6 +85,8 @@ public class DR_Tank_Test extends OpMode{
         speed_mode = true;
         plowLeft.setPosition(0.7607843);
         plowRight.setPosition(0.11372549);
+        plowPositionLeft = 0.76;
+        plowPositionRight = 0.11;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -100,8 +106,8 @@ public class DR_Tank_Test extends OpMode{
         plowPositionRight = Range.clip(plowPositionRight,0.10,0.8);
         inOutPosition = Range.clip(inOutPosition,0.18,0.78);
 
-        catLeftPosition = Range.clip(catLeftPosition, 0.01, 0.959);
-        catRightPosition = Range.clip(catRightPosition, 0.01, 0.710);
+        catLeftPosition = Range.clip(catLeftPosition, 0.114, 0.886);
+        catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
 
         float throttleLB = gamepad1.left_stick_y;
         float throttleRB = gamepad1.right_stick_y;
@@ -117,34 +123,20 @@ public class DR_Tank_Test extends OpMode{
             speed_mode = false;
         }
 
-        if (speed_mode)
-        {
             throttleLB = Range.clip(throttleLB, -1, 1);
             throttleRB = Range.clip(throttleRB, -1, 1);
             throttleLF = Range.clip(throttleLF, -1, 1);
             throttleRF = Range.clip(throttleRF, -1, 1);
-            throttleLB = (float) scaleInputRearHigh(throttleLB);
+            /*throttleLB = (float) scaleInputRearHigh(throttleLB);
             throttleRB = (float) scaleInputRearHigh(throttleRB);
             throttleLF = (float) scaleInputFrontHigh(throttleLF);
-            throttleRF = (float) scaleInputFrontHigh(throttleRF);
-        }
-        if (!speed_mode )
-        {
-            throttleLB = (float) Range.clip(throttleLB, -0.75, 0.75);
-            throttleRB = (float) Range.clip(throttleRB, -0.75, 0.75);
-            throttleLF = (float) Range.clip(throttleLF, -0.5625, 0.5625);
-            throttleRF = (float) Range.clip(throttleRF, -0.5625, 0.5625);
-            throttleLB = (float) scaleInputRearLow(throttleLB);
-            throttleRB = (float) scaleInputRearLow(throttleRB);
-            throttleLF = (float) scaleInputFrontLow(throttleLF);
-            throttleRF = (float) scaleInputFrontLow(throttleRF);
-        }
+            throttleRF = (float) scaleInputFrontHigh(throttleRF);*/
 
 
-        motorLeftRear.setPower(throttleRB);
-        motorLeftFront.setPower(throttleLF);
-        motorRightRear.setPower(throttleLB);
-        motorRightFront.setPower(throttleRF);
+        motorLeftRear.setPower(-throttleLB);
+        motorLeftFront.setPower(-throttleLF);
+        motorRightRear.setPower(-throttleRB);
+        motorRightFront.setPower(-throttleRF);
 
 
         if (gamepad2.dpad_up) {
@@ -206,7 +198,7 @@ public class DR_Tank_Test extends OpMode{
         catLeft.setPosition(catLeftPosition);
         catRight.setPosition(catRightPosition);
 
-        telemetry.addData("Left Rear:"
+                /*telemetry.addData("Left Rear:"
                 , +motorLeftRear.getPower()
                 + motorLeftRear.getCurrentPosition());
                 telemetry.addData("Right Rear:"
@@ -217,12 +209,18 @@ public class DR_Tank_Test extends OpMode{
                     + motorLeftFront.getCurrentPosition());
                 telemetry.addData("Right Front:"
                 ,   + motorRightFront.getPower()
-                    + motorRightFront.getCurrentPosition());
-                //telemetry.addData("Left Plow:", plowLeft.getPosition());
-                //telemetry.addData("Right Plow:", plowRight.getPosition());
-                //telemetry.addData("InOut Plow:", plowInOut.getPosition());
+                    + motorRightFront.getCurrentPosition()); */
+                telemetry.addData("Left Plow:", plowLeft.getPosition());
+                telemetry.addData("Right Plow:", plowRight.getPosition());
+                telemetry.addData("InOut Plow:", plowInOut.getPosition());
                 telemetry.addData("CatLeft:", catLeft.getPosition());
                 telemetry.addData("CatRight:", catRight.getPosition());
+                telemetry.addData("Throttle LB", throttleLB);
+                telemetry.addData("Throttle LF", throttleLF);
+                telemetry.addData("Throttle RB", throttleRB);
+                telemetry.addData("Throttle RF", throttleRF);
+                telemetry.addData("rev", rev);
+
 
 
         //telemetry.addData("X Accelerometer", accelX);
