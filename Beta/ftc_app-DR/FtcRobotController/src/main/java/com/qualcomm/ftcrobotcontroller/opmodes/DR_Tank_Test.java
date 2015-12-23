@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
+import
 
 /**
  * Created by Delta on 9/30/2015.
@@ -65,22 +66,23 @@ public class DR_Tank_Test extends OpMode{
         //motorLeftFront.setDirection(DcMotor.Direction.REVERSE);
 
         catLeft = hardwareMap.servo.get("CatLeft");
-        catLeft.setPosition(0.586);
-        catLeftPosition = 0.586;
+        catLeft.setPosition(0.886);
+        catLeftPosition = 0.886;
 
         catRight = hardwareMap.servo.get("CatRight");
-        catRight.setPosition(0.39);
-        catRightPosition = 0.39;
+        catRight.setPosition(0.09);
+        catRightPosition = 0.09;
 
-        plowLeft = hardwareMap.servo.get ("Left_Plow");
-        plowRight = hardwareMap.servo.get ("Right_Plow");
-        plowInOut = hardwareMap.servo.get ("InOut_Plow");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
+        plowInOut = hardwareMap.servo.get("InOut_Plow");
+        colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
         //plowLeft.setPosition(0.23137255);
         //plowRight.setPosition(0.64705884);
         //plowInOut.setPosition(.455);
-        //armColorSensor = hardwareMap.servo.get ("ColorSensor_arm");
         //plowPositionLeft = 0.7697843;
         //plowPositionRight = 0.11372549;
+
 
         speed_mode = true;
         plowLeft.setPosition(0.7607843);
