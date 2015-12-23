@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.Servo;
-import
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 /**
  * Created by Delta on 9/30/2015.
@@ -25,6 +25,7 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorRightFront;
     Servo catLeft;
     Servo catRight;
+    ColorSensor colorSensor;
 
     double catLeftPosition  = 0.909;
     double catLeftDelta = 0.002;
