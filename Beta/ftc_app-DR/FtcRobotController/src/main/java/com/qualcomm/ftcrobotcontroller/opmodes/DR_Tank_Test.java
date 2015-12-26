@@ -25,7 +25,6 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorRightFront;
     Servo catLeft;
     Servo catRight;
-    ColorSensor colorSensor;
 
     double catLeftPosition  = 0.909;
     double catLeftDelta = 0.002;
@@ -77,7 +76,7 @@ public class DR_Tank_Test extends OpMode{
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
-        colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
+        //colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
         //plowLeft.setPosition(0.23137255);
         //plowRight.setPosition(0.64705884);
         //plowInOut.setPosition(.455);
