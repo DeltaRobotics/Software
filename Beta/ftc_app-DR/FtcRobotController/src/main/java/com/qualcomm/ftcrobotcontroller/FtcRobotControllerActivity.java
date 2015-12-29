@@ -31,6 +31,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller;
 
+import android.hardware.Camera;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ComponentName;
@@ -48,6 +50,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -98,6 +101,7 @@ public class FtcRobotControllerActivity extends Activity {
   protected UpdateUI updateUI;
   protected Dimmer dimmer;
   protected LinearLayout entireScreenLayout;
+  public Camera camera;
 
   protected FtcRobotControllerService controllerService;
 
@@ -176,6 +180,27 @@ public class FtcRobotControllerActivity extends Activity {
     if (USE_DEVICE_EMULATION) { HardwareFactory.enableDeviceEmulation(); }
   }
 
+  public void initPreview(final Camera camera, final OpModeCamera context, final Camera.PreviewCallback previewCallback)
+  {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        context.preview = new CameraPreview(FtcRobotControllerActivity.this, camera, previewCallback);
+        FrameLayout previewLayout = (FrameLayout) findViewById(R.id.previewLayout);
+        previewLayout.addView(context.preview);
+      }
+    });
+  }
+  public void removePreview(final OpModeCamera context)
+  {
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        FrameLayout previewLayout = (FrameLayout) findViewById(R.id.previewLayout);
+        previewLayout.removeAllViews();
+      }
+    });
+  }
   @Override
   protected void onStart() {
     super.onStart();
@@ -381,4 +406,4 @@ public class FtcRobotControllerActivity extends Activity {
       }
     });
   }
-}
+  }
