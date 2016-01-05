@@ -118,13 +118,19 @@ public class OpModeCamera extends OpMode {
         return (red(pixel) + green(pixel) + blue(pixel));
     }
 
-    public int highestColor(int red, int green, int blue) {
-        int[] color = {red, green, blue};
-        int value = 0;
-        for (int i = 1; i < 3; i++) {
-            if (color[value] < color[i]) {
-                value = i;
-            }
+    public int highestColor(int red, int blue) {
+        int value;
+        if((red + 3) > blue)
+        {
+            value = 0;
+        }
+        else if((blue + 3) > red)
+        {
+            value = 2;
+        }
+        else
+        {
+            value = 1;
         }
         return value;
     }
@@ -200,5 +206,9 @@ public class OpModeCamera extends OpMode {
     public void stop() {
         stopCamera();
 
+    }
+    public int normalizePixels(int value) {
+        value /= 100000;
+        return value;
     }
 }

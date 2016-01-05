@@ -23,6 +23,10 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
+
+    DcMotor leftLever;
+    DcMotor rightLever;
+
     Servo catLeft;
     Servo catRight;
 
@@ -76,12 +80,16 @@ public class DR_Tank_Test extends OpMode{
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
         plowInOut = hardwareMap.servo.get("InOut_Plow");
+
+        leftLever = hardwareMap.dcMotor.get("Left_Lever");
+        rightLever = hardwareMap.dcMotor.get("Right_Lever");
         //colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
         //plowLeft.setPosition(0.23137255);
         //plowRight.setPosition(0.64705884);
         //plowInOut.setPosition(.455);
         //plowPositionLeft = 0.7697843;
         //plowPositionRight = 0.11372549;
+
 
 
         speed_mode = true;
@@ -111,10 +119,10 @@ public class DR_Tank_Test extends OpMode{
         catLeftPosition = Range.clip(catLeftPosition, 0.114, 0.886);
         catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
 
-        float throttleLB = gamepad1.left_stick_y;
-        float throttleRB = gamepad1.right_stick_y;
-        float throttleLF = gamepad1.left_stick_y;
-        float throttleRF = gamepad1.right_stick_y;
+        double throttleLB = gamepad1.left_stick_y;
+        double throttleRB = gamepad1.right_stick_y;
+        double throttleLF = gamepad1.left_stick_y;
+        double throttleRF = gamepad1.right_stick_y;
 
         if (gamepad1.y)
         {
@@ -125,15 +133,19 @@ public class DR_Tank_Test extends OpMode{
             speed_mode = false;
         }
 
-            throttleLB = Range.clip(throttleLB, -1, 1);
-            throttleRB = Range.clip(throttleRB, -1, 1);
-            throttleLF = Range.clip(throttleLF, -1, 1);
-            throttleRF = Range.clip(throttleRF, -1, 1);
-            /*throttleLB = (float) scaleInputRearHigh(throttleLB);
-            throttleRB = (float) scaleInputRearHigh(throttleRB);
-            throttleLF = (float) scaleInputFrontHigh(throttleLF);
-            throttleRF = (float) scaleInputFrontHigh(throttleRF);*/
+            throttleLB = Range.clip(throttleLB, -0.75, 0.75);
+            throttleRB = Range.clip(throttleRB, -0.75, 0.75);
+            throttleLF = Range.clip(throttleLF, -0.75, 0.75);
+            throttleRF = Range.clip(throttleRF, -0.75, 0.75);
 
+        float leftLeverThrottle = gamepad2.left_stick_y;
+        float rightLeverThrottle = gamepad2.right_stick_y;
+
+        leftLeverThrottle = Range.clip(leftLeverThrottle, -1, 1);
+        rightLeverThrottle = Range.clip(rightLeverThrottle, -1, 1);
+
+        leftLever.setPower(leftLeverThrottle);
+        rightLever.setPower(-rightLeverThrottle);
 
         motorLeftRear.setPower(-throttleLB);
         motorLeftFront.setPower(-throttleLF);
