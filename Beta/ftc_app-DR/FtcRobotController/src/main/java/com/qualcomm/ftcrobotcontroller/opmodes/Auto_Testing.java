@@ -23,6 +23,10 @@ public class Auto_Testing extends OpModeCamera {
     Servo catLeft;
     Servo catRight;
 
+    Servo plowLeft;
+    Servo plowRight;
+    Servo plowInOut;
+
     final private double CATLeft_UP = 0.114;
     final private double CATLeft_DOWN = 0.886;
     final private double CATLeft_DELTA = 0.001;
@@ -31,10 +35,20 @@ public class Auto_Testing extends OpModeCamera {
     final private double CATRight_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
 
+    final private double PLOWLeft_UP = 0.23137255;
+    final private double PLOWLeft_DOWN = 0.71;
+    final private double PLOWLeft_DELTA = 0.002;
+    final private double PLOWRight_UP = 0.64705884;
+    final private double PLOWRight_DOWN = 0.11;
+    final private double PLOWRight_DELTA = 0.002;
+    final private double PLOWInOut_IN = .4;
+    final private double PLOWInOut_OUT = .83;
+
     private double catLeftPosition;
     private double catRightPosition;
-
-    OpticalDistanceSensor floorSensor;
+    private double plowLeftPosition;
+    private double plowRightPosition;
+    private double plowInOutPosition;
 
     private int a_state = 0;
     private int LR_enc;
@@ -48,8 +62,6 @@ public class Auto_Testing extends OpModeCamera {
     int colorL = 10;
 
     double white = .15;
-    double color = floorSensor.getLightDetected();
-
     enum States {INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2}
 
     ;
@@ -67,11 +79,11 @@ public class Auto_Testing extends OpModeCamera {
 
         catLeft = hardwareMap.servo.get("CatLeft");
         catRight = hardwareMap.servo.get("CatRight");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
+        plowInOut = hardwareMap.servo.get("InOut_Plow");
 
         set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-
-
-        floorSensor = hardwareMap.opticalDistanceSensor.get("Sensor_distance");
 
         current_state = States.INIT_MOTORS;
 
@@ -87,6 +99,14 @@ public class Auto_Testing extends OpModeCamera {
     public void loop() {
         catLeftPosition = Range.clip(catLeftPosition, 0.114, 0.886);
         catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
+        plowLeftPosition = Range.clip(plowLeftPosition, PLOWLeft_DOWN, PLOWLeft_UP);
+        plowRightPosition = Range.clip(plowRightPosition, PLOWRight_DOWN, PLOWRight_UP);
+
+        catLeft.setPosition(catLeftPosition);
+        catRight.setPosition(catRightPosition);
+        plowLeft.setPosition(plowLeftPosition);
+        plowRight.setPosition(plowRightPosition);
+        plowInOut.setPosition(plowInOutPosition);
 
         if (imageReady()) {
             int redValueLeft = -76800;
@@ -158,7 +178,6 @@ public class Auto_Testing extends OpModeCamera {
         telemetry.addData("7 - Case", current_state);
         telemetry.addData("5 - a_state", a_state);
         telemetry.addData("6 - X:", x);
-        telemetry.addData("4 - Distance_sensor_output", floorSensor.getLightDetected());
         //SCA = Range.clip(SCA, 0.05, 0.9);
         // Update encoder values
 
@@ -172,8 +191,9 @@ public class Auto_Testing extends OpModeCamera {
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 //telemetry.addData("Test:", "run_enc");
 
-                // plowLeft.setPosition(0.0196);
-                //plowRight.setPosition(0.9686);
+                plowLeftPosition = PLOWLeft_DOWN;
+                plowRightPosition = PLOWRight_DOWN;
+                plowInOutPosition = PLOWInOut_IN;
                 sleep(100);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
@@ -181,15 +201,12 @@ public class Auto_Testing extends OpModeCamera {
 
             case RESTBPIVOT:
                 sleep(500);
-                set_motor_power(-1.0, -1.0, 1.0, 1.0);
+                set_motor_power(1.0, -1.0, 1.0, -1.0);
                 current_state = States.PIVOT;
                 break;
             case RESTBDRIVE_FORWARD2:
                 sleep(500);
                 current_state = States.SETUP_DRIVE_FORWARD2;
-                break;
-            case SETUP_PIVOT:
-                current_state = States.PIVOT;
                 break;
             case SETUP_DRIVE_FORWARD2:
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
@@ -213,7 +230,7 @@ public class Auto_Testing extends OpModeCamera {
                 break;
 
             case PIVOT:
-                if(motorLeftFront.getCurrentPosition()>= 2000 + x)
+                if(motorLeftFront.getCurrentPosition()>= 1300 + x)
                 {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     current_state = States.RESTBDRIVE_FORWARD2;
@@ -225,15 +242,20 @@ public class Auto_Testing extends OpModeCamera {
 
 
             case DRIVEFORWARD2:
-                if (motorLeftFront.getCurrentPosition() >= 11000 + x)
+                if (motorLeftFront.getCurrentPosition() >= 9100 + x)
                 {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    current_state = States.STOP;
-
+                    current_state = States.DUMP_PEOPLE;
                 }
 
                 break;
             case DUMP_PEOPLE:
+                catRightPosition = CATRight_UP/2;
+                current_state = States.SETUP_PIVOT;
+                break;
+            case SETUP_PIVOT:
+                catRightPosition = CATRight_UP;
+                current_state = States.STOP;
 
             case STOP:
                 //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
@@ -247,8 +269,8 @@ public class Auto_Testing extends OpModeCamera {
                 telemetry.addData("Case", "You all done");
                 break;
         }
-        catLeft.setPosition(catLeftPosition);
-        catRight.setPosition(catRightPosition);
+        telemetry.addData("LeftPosition", plowLeftPosition);
+        telemetry.addData("PlowRightPostition", plowRightPosition);
 
     }
 

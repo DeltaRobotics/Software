@@ -100,7 +100,7 @@ public class FtcOpModeRegister implements OpModeRegister {
 
     manager.register("DR_Red", DR_Red.class);
     manager.register("DR_Tank_Test", DR_Tank_Test.class);
-    manager.register("GyroTestOpMode", GyroTestOpMode.class);
+    //manager.register("GyroTestOpMode", GyroTestOpMode.class);
     manager.register("Sensor_Test", Sensor_Test.class);
     manager.register("Auto_Testing", Auto_Testing.class);
     manager.register("DR_Camera_Testing", DR_Camera_Testing.class);
