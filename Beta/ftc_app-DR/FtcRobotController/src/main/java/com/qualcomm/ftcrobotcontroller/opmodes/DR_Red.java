@@ -87,7 +87,6 @@ public class DR_Red extends OpMode {
         catLeft.setPosition(CATLeft_DOWN);
         catRight.setPosition(CATRight_DOWN);
         //armColorSensor.setPosition(SCA);u
-
         current_state = States.INIT_MOTORS;
 
         update_encoders();
@@ -129,26 +128,9 @@ public class DR_Red extends OpMode {
                 // plowLeft.setPosition(0.0196);
                 //plowRight.setPosition(0.9686);
                 plowInOut.setPosition(0.25);
-                sleep(100);
+                sleep(10000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
-                break;
-
-            case RESTBPIVOT:
-                sleep(500);
-                current_state = States.SETUP_PIVOT;
-                break;
-            case RESTBDRIVE_FORWARD2:
-                sleep(500);
-                current_state = States.SETUP_DRIVE_FORWARD2;
-                break;
-            case SETUP_PIVOT:
-                set_motor_power(0.8, -0.8, 0.8, -0.8);
-                current_state = States.PIVOT;
-                break;
-            case SETUP_DRIVE_FORWARD2:
-                set_motor_power(1.0,1.0,1.0,1.0);
-                current_state = States.DRIVE_FORWARD2;
                 break;
             case DRIVE_FORWARD:
                 // Drive forward at 100% power
@@ -170,6 +152,32 @@ public class DR_Red extends OpMode {
                     telemetry.addData("Test1", "else_statement");
                 }
                 break;
+            case STOP:
+                telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+                telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
+                telemetry.addData("Test:", "reset_enc");
+                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                telemetry.addData("Test:", "run_enc");
+                break;
+
+            case RESTBPIVOT:
+                sleep(500);
+                current_state = States.SETUP_PIVOT;
+                break;
+            case RESTBDRIVE_FORWARD2:
+                sleep(500);
+                current_state = States.SETUP_DRIVE_FORWARD2;
+                break;
+            case SETUP_PIVOT:
+                set_motor_power(0.8, -0.8, 0.8, -0.8);
+                current_state = States.PIVOT;
+                break;
+            case SETUP_DRIVE_FORWARD2:
+                set_motor_power(1.0,1.0,1.0,1.0);
+                current_state = States.DRIVE_FORWARD2;
+                break;
+
 
             case PIVOT:
                 if (has_Left_encoder_reached(x + 2400)) {
@@ -217,14 +225,7 @@ public class DR_Red extends OpMode {
                 sleep(1000);
                 current_state = States.STOP;
                 break;
-            case STOP:
-                telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
-                telemetry.addData("Test:", "reset_enc");
-                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-                telemetry.addData("Test:", "run_enc");
-                break;
+
             default:
                 telemetry.addData("Case", "You all done");
                 break;

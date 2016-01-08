@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.util.Range;
 /**
  * Created by Delta on 10/10/2015.
  */
-public class Auto_Testing extends OpModeCamera {
+public class DR_Blue extends OpModeCamera {
 
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
@@ -94,13 +94,15 @@ public class Auto_Testing extends OpModeCamera {
 
         catLeftPosition = CATLeft_DOWN;
         catRightPosition = CATRight_DOWN;
+
+        // catLeft.setPosition(CATLeft_DOWN);
+        // catRight.setPosition(CATRight_DOWN);
+
+        plowLeft.setPosition(PLOWLeft_UP);
+        plowRight.setPosition(PLOWRight_UP);
     }
 
     public void loop() {
-        catLeftPosition = Range.clip(catLeftPosition, 0.114, 0.886);
-        catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
-        plowLeftPosition = Range.clip(plowLeftPosition, PLOWLeft_DOWN, PLOWLeft_UP);
-        plowRightPosition = Range.clip(plowRightPosition, PLOWRight_DOWN, PLOWRight_UP);
 
         catLeft.setPosition(catLeftPosition);
         catRight.setPosition(catRightPosition);
@@ -194,24 +196,11 @@ public class Auto_Testing extends OpModeCamera {
                 plowLeftPosition = PLOWLeft_DOWN;
                 plowRightPosition = PLOWRight_DOWN;
                 plowInOutPosition = PLOWInOut_IN;
-                sleep(100);
+                sleep(10000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
                 break;
 
-            case RESTBPIVOT:
-                sleep(500);
-                set_motor_power(1.0, -1.0, 1.0, -1.0);
-                current_state = States.PIVOT;
-                break;
-            case RESTBDRIVE_FORWARD2:
-                sleep(500);
-                current_state = States.SETUP_DRIVE_FORWARD2;
-                break;
-            case SETUP_DRIVE_FORWARD2:
-                set_motor_power(1.0, 1.0, 1.0, 1.0);
-                current_state = States.DRIVEFORWARD2;
-                break;
             case DRIVE_FORWARD:
                 // Drive forward at 100% power
                 telemetry.addData("8 - Encoder Front", +motorLeftFront.getCurrentPosition());
@@ -229,6 +218,12 @@ public class Auto_Testing extends OpModeCamera {
                 }
                 break;
 
+            case RESTBPIVOT:
+                sleep(500);
+                set_motor_power(1.0, -1.0, 1.0, -1.0);
+                current_state = States.PIVOT;
+                break;
+
             case PIVOT:
                 if(motorLeftFront.getCurrentPosition()>= 1300 + x)
                 {
@@ -239,7 +234,16 @@ public class Auto_Testing extends OpModeCamera {
                 else {
                     telemetry.addData("Test:", "Else_Statement");
                 }
+                break;
+            case RESTBDRIVE_FORWARD2:
+                sleep(500);
+                current_state = States.SETUP_DRIVE_FORWARD2;
+                break;
 
+            case SETUP_DRIVE_FORWARD2:
+                set_motor_power(1.0, 1.0, 1.0, 1.0);
+                current_state = States.DRIVEFORWARD2;
+                break;
 
             case DRIVEFORWARD2:
                 if (motorLeftFront.getCurrentPosition() >= 9100 + x)
@@ -250,12 +254,16 @@ public class Auto_Testing extends OpModeCamera {
 
                 break;
             case DUMP_PEOPLE:
-                catRightPosition = CATRight_UP/2;
-                current_state = States.SETUP_PIVOT;
+                if (catRightPosition < CATRight_UP)
+                {
+                    catRightPosition += .1;
+                    sleep(50);
+                }
+                else
+                {
+                    current_state = States.STOP;
+                }
                 break;
-            case SETUP_PIVOT:
-                catRightPosition = CATRight_UP;
-                current_state = States.STOP;
 
             case STOP:
                 //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
