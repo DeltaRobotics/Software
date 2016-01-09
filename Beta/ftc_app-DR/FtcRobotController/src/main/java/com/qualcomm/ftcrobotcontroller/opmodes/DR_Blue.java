@@ -91,7 +91,6 @@ public class DR_Blue extends OpModeCamera {
 
         setCameraDownsampling(2);
         super.init();
-
         catLeftPosition = CATLeft_DOWN;
         catRightPosition = CATRight_DOWN;
 
