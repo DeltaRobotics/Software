@@ -1,5 +1,6 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -10,6 +11,7 @@ import com.qualcomm.robotcore.util.Range;
  */
 public class DR_Red extends OpMode {
 
+    ColorSensor colorSensor;
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
@@ -48,6 +50,7 @@ public class DR_Red extends OpMode {
     final private double CATRight_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
     private int x = 0;
+    int floorColor;
 
 
     enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DRIVE_FORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2};
@@ -73,6 +76,8 @@ public class DR_Red extends OpMode {
         catLeft = hardwareMap.servo.get("CatLeft");
         catRight = hardwareMap.servo.get("CatRight");
         //SCA = 0.80;
+
+        colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
         InOut = .455;
         plowInOut.setPosition(InOut);
         //SCAdelta = 0.05;

@@ -1,30 +1,55 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
-import android.hardware.SensorEventListener;
+import android.app.Activity;
+import android.view.View;
+import android.graphics.Color;
+
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
-import com.qualcomm.robotcore.util.Range;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+
 /**
  * Created by RoboticsUser on 12/26/2015.
  */
 public class Sensor_Test extends OpMode{
 
-    OpticalDistanceSensor floorSensor;
+    OpticalDistanceSensor distanceSensor;
     ColorSensor colorSensor;
+    boolean flag = true;
 
+    public void init() {
 
-    public void init () {
-
-        floorSensor = hardwareMap.opticalDistanceSensor.get("Sensor_distance");
+        distanceSensor = hardwareMap.opticalDistanceSensor.get("Sensor_distance");
         colorSensor = hardwareMap.colorSensor.get("Sensor_color");
     }
     public void loop () {
-        telemetry.addData("Distance_sensor_output", floorSensor.getLightDetected());
-        telemetry.addData("Color sensor output", colorSensor.toString());
+
+        if(flag) {
+
+            double ODSr = distanceSensor.getLightDetectedRaw();
+            double ODS = distanceSensor.getLightDetected();
+
+            float hsvValues[] = {6F, 6F, 6F};
+            final float values[] = hsvValues;
+            final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(R.id.RelativeLayout);
+
+            Color.RGBToHSV(colorSensor.red() * 8, colorSensor.green() * 8, colorSensor.blue() * 8, hsvValues);
+
+            telemetry.addData("Object Reference ", colorSensor.toString());
+            telemetry.addData("Clear", colorSensor.alpha());
+            telemetry.addData("Red  ", colorSensor.red());
+            telemetry.addData("Blue", colorSensor.blue());
+            telemetry.addData("Green", colorSensor.green());
+            telemetry.addData("Hue", hsvValues[0]);
+
+            telemetry.addData("Distance_sensor_output", ODS);
+            telemetry.addData("Distance_sensor_output_Raw", ODSr);
+
+            relativeLayout.post(new Runnable() {
+                public void run() {
+                    relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+                }
+            });
+        }
     }
 }

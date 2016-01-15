@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorController;
 import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 /**
  * Created by Delta on 10/10/2015.
@@ -23,9 +24,12 @@ public class DR_Blue extends OpModeCamera {
     Servo catLeft;
     Servo catRight;
 
-    Servo plowLeft;
-    Servo plowRight;
-    Servo plowInOut;
+    //Servo plowLeft;
+    //Servo plowRight;
+    //Servo plowInOut;
+
+    ColorSensor RGBSensor;
+    OpticalDistanceSensor ODS;
 
     final private double CATLeft_UP = 0.114;
     final private double CATLeft_DOWN = 0.886;
@@ -35,20 +39,20 @@ public class DR_Blue extends OpModeCamera {
     final private double CATRight_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
 
-    final private double PLOWLeft_UP = 0.23137255;
-    final private double PLOWLeft_DOWN = 0.71;
-    final private double PLOWLeft_DELTA = 0.002;
-    final private double PLOWRight_UP = 0.64705884;
-    final private double PLOWRight_DOWN = 0.11;
-    final private double PLOWRight_DELTA = 0.002;
-    final private double PLOWInOut_IN = .4;
-    final private double PLOWInOut_OUT = .83;
+    //final private double PLOWLeft_UP = 0.23137255;
+    //final private double PLOWLeft_DOWN = 0.71;
+    //final private double PLOWLeft_DELTA = 0.002;
+    //final private double PLOWRight_UP = 0.64705884;
+    //final private double PLOWRight_DOWN = 0.11;
+    //final private double PLOWRight_DELTA = 0.002;
+    //final private double PLOWInOut_IN = .4;
+    //final private double PLOWInOut_OUT = .83;
 
     private double catLeftPosition;
     private double catRightPosition;
-    private double plowLeftPosition;
-    private double plowRightPosition;
-    private double plowInOutPosition;
+    //private double plowLeftPosition;
+    //private double plowRightPosition;
+    //private double plowInOutPosition;
 
     private int a_state = 0;
     private int LR_enc;
@@ -62,7 +66,7 @@ public class DR_Blue extends OpModeCamera {
     int colorL = 10;
 
     double white = .15;
-    enum States {INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2}
+    enum States {INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
 
     ;
 
@@ -79,9 +83,13 @@ public class DR_Blue extends OpModeCamera {
 
         catLeft = hardwareMap.servo.get("CatLeft");
         catRight = hardwareMap.servo.get("CatRight");
-        plowLeft = hardwareMap.servo.get("Left_Plow");
-        plowRight = hardwareMap.servo.get("Right_Plow");
-        plowInOut = hardwareMap.servo.get("InOut_Plow");
+        //plowLeft = hardwareMap.servo.get("Left_Plow");
+        //plowRight = hardwareMap.servo.get("Right_Plow");
+        //plowInOut = hardwareMap.servo.get("InOut_Plow");
+
+        RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
+        ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
+
 
         set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
 
@@ -97,17 +105,17 @@ public class DR_Blue extends OpModeCamera {
         // catLeft.setPosition(CATLeft_DOWN);
         // catRight.setPosition(CATRight_DOWN);
 
-        plowLeft.setPosition(PLOWLeft_UP);
-        plowRight.setPosition(PLOWRight_UP);
+        //plowLeft.setPosition(PLOWLeft_UP);
+        //plowRight.setPosition(PLOWRight_UP);
     }
 
     public void loop() {
 
         catLeft.setPosition(catLeftPosition);
         catRight.setPosition(catRightPosition);
-        plowLeft.setPosition(plowLeftPosition);
-        plowRight.setPosition(plowRightPosition);
-        plowInOut.setPosition(plowInOutPosition);
+        //plowLeft.setPosition(plowLeftPosition);
+        //plowRight.setPosition(plowRightPosition);
+        //plowInOut.setPosition(plowInOutPosition);
 
         if (imageReady()) {
             int redValueLeft = -76800;
@@ -192,9 +200,9 @@ public class DR_Blue extends OpModeCamera {
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 //telemetry.addData("Test:", "run_enc");
 
-                plowLeftPosition = PLOWLeft_DOWN;
-                plowRightPosition = PLOWRight_DOWN;
-                plowInOutPosition = PLOWInOut_IN;
+                //plowLeftPosition = PLOWLeft_DOWN;
+                //plowRightPosition = PLOWRight_DOWN;
+                //plowInOutPosition = PLOWInOut_IN;
                 sleep(10000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
@@ -245,13 +253,13 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case DRIVEFORWARD2:
-                if (motorLeftFront.getCurrentPosition() >= 9100 + x)
-                {
-                    set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    current_state = States.DUMP_PEOPLE;
-                }
+                runUntilColor(.64,.74, 0.75, 9500);
+                current_state = States.FOLLOW_LINE;
 
                 break;
+            case FOLLOW_LINE:
+                lineFollow(.8, .75, true, .3);
+
             case DUMP_PEOPLE:
                 if (catRightPosition < CATRight_UP)
                 {
@@ -276,8 +284,8 @@ public class DR_Blue extends OpModeCamera {
                 telemetry.addData("Case", "You all done");
                 break;
         }
-        telemetry.addData("LeftPosition", plowLeftPosition);
-        telemetry.addData("PlowRightPostition", plowRightPosition);
+        //telemetry.addData("LeftPosition", plowLeftPosition);
+        //telemetry.addData("PlowRightPostition", plowRightPosition);
 
     }
 
@@ -320,5 +328,68 @@ public class DR_Blue extends OpModeCamera {
         RF_enc = motorRightFront.getCurrentPosition();
     }
 
+    public void runUntilColor(double min, double max, double motorPower, int failEncoder) {
 
-}
+        motorLeftRear.setPower(motorPower);
+        motorRightRear.setPower(motorPower);
+        motorLeftFront.setPower(motorPower);
+        motorRightFront.setPower(motorPower);
+
+        if (RGBSensor.argb() >= min && RGBSensor.argb() <= max) {
+
+            motorLeftRear.setPower(0);
+            motorRightRear.setPower(0);
+            motorLeftFront.setPower(0);
+            motorRightFront.setPower(0);
+
+        }
+        if (motorLeftRear.getCurrentPosition() >= failEncoder) {
+
+            motorLeftRear.setPower(0);
+            motorRightRear.setPower(0);
+            motorLeftFront.setPower(0);
+            motorRightFront.setPower(0);
+
+        }
+    }
+
+    public void lineFollow(double color, double power, boolean right, double distance){
+
+            double power_l = power;
+            double power_r = power;
+
+            while(ODS.getLightDetected() >= distance){
+                if(right == true){
+                    power_r += .1;          // Edit: The motor power is between -1 and 1, so adding 1 will break stuff...
+                    power_l -= .1;
+                    motorRightFront.setPower(power_r);
+                    motorRightRear.setPower(power_r);
+                    motorLeftFront.setPower(power_l);
+                    motorLeftRear.setPower(power_l);
+                }
+                if(right == false){
+                    power_l += .1;
+                    power_r -= .1;
+                    motorLeftFront.setPower(power_l);
+                    motorLeftRear.setPower(power_l);
+                    motorRightFront.setPower(power_r);
+                    motorRightRear.setPower(power_r);
+                }
+            }
+            if (RGBSensor.argb() == color){
+                right =! right;
+                motorRightFront.setPower(power);
+                motorRightRear.setPower(power);
+                motorLeftFront.setPower(power);
+                motorLeftRear.setPower(power);
+            }
+    }
+
+    public float scanForClosest(){
+        float closest = 0;
+
+
+        return closest;
+    }
+
+    }
