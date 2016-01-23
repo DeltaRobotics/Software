@@ -23,7 +23,8 @@ public class DR_Tank_Test extends OpMode{
     public float deltaY;
     public float deltaZ;
 
-    public boolean sweeper;
+    public boolean sweeperF;
+    public boolean sweeperR;
 
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
@@ -36,7 +37,7 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorWinchLeft;
     DcMotor motorWinchRight;
     DcMotor motorWinchHelp;
-    //DcMotor motorSweeper;
+    DcMotor motorSweeper;
 
     Servo catLeft;
     Servo catRight;
@@ -53,7 +54,7 @@ public class DR_Tank_Test extends OpMode{
     double catRightPosition  = 0.005;
     double catRightDelta = 0.002;
     double winchAngleDelta = 0.001;
-    double winchAnglePosition = 0.75;
+    double winchAnglePosition = .78;
     //Servo plowLeft;
     //Servo plowRight;
     //Servo plowInOut;
@@ -68,6 +69,7 @@ public class DR_Tank_Test extends OpMode{
     //double inOutDelta = 0.005;
 
     int rev = 3;
+    int count = 0;
     //double armColorSensorPosition = 0.8;
 
     boolean speed_mode;
@@ -95,7 +97,7 @@ public class DR_Tank_Test extends OpMode{
         winchAngle = hardwareMap.servo.get("Winch_Angle");
         winchAngle.setPosition(winchAnglePosition);
 
-        //motorSweeper = hardwareMap.dcMotor.get("Sweeper");
+        motorSweeper = hardwareMap.dcMotor.get("Sweeper");
 
         catLeft = hardwareMap.servo.get("CatLeft");
         catLeft.setPosition(0.886);
@@ -128,7 +130,8 @@ public class DR_Tank_Test extends OpMode{
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sweeper = true;
+        sweeperF = false;
+        sweeperR = false;
     }
 
     public void start() {
@@ -197,9 +200,18 @@ public class DR_Tank_Test extends OpMode{
             if (gamepad2.right_bumper) {
                 winchAnglePosition -= winchAngleDelta;
             }
-            /*if(gamepad1.a) {
-                sweeper = !sweeper;
-            }*/
+            if (count > 10)
+            {
+                if(gamepad1.a) {
+                    sweeperF = !sweeperF;
+                    count = 0;
+                }
+                if(gamepad1.b) {
+                    sweeperR = !sweeperR;
+                    count = 0;
+                }
+            }
+
             /*
             if (gamepad2.right_bumper) {
                 plowPositionLeft -= plowDeltaLeft;
@@ -241,14 +253,25 @@ public class DR_Tank_Test extends OpMode{
             catLeft.setPosition(catLeftPosition);
             catRight.setPosition(catRightPosition);
             winchAngle.setPosition(winchAnglePosition);
-           /*if(sweeper)
+           if(sweeperF)
            {
                motorSweeper.setPower(1.0);
            }
             else
            {
                motorSweeper.setPower(0.0);
-           }*/
+           }
+           if(!sweeperF)
+           {
+               if(sweeperR)
+               {
+                   motorSweeper.setPower(-1.0);
+               }
+               else
+               {
+                   motorSweeper.setPower(0.0);
+               }
+           }
 
                 /*telemetry.addData("Left Rear:"
                 , +motorLeftRear.getPower()
@@ -265,6 +288,7 @@ public class DR_Tank_Test extends OpMode{
             //telemetry.addData("Left Plow:", plowLeft.getPosition());
             //telemetry.addData("Right Plow:", plowRight.getPosition());
             //telemetry.addData("InOut Plow:", plowInOut.getPosition());
+            count++;
             telemetry.addData("CatLeft:", catLeft.getPosition());
             telemetry.addData("CatRight:", catRight.getPosition());
             telemetry.addData("Throttle LB", throttleLB);

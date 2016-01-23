@@ -105,6 +105,6 @@ public class FtcOpModeRegister implements OpModeRegister {
     manager.register("DR_Red", DR_Red.class);
     manager.register("DR_Camera_Testing", DR_Camera_Testing.class);
     manager.register("DR_Just_Drive", DR_Just_Drive.class);
-    manager.register("Distance_Test", Distance_Test.class);
+    manager.register("DR_Auto_Setup", DR_Auto_Setup.class);
   }
 }

@@ -28,6 +28,9 @@ public class DR_Blue extends OpModeCamera {
     Servo catLeft;
     Servo catRight;
 
+    boolean flag = false;
+    boolean flag1 = false;
+
     Servo winchAngle;
     //Servo plowLeft;
     //Servo plowRight;
@@ -43,8 +46,8 @@ public class DR_Blue extends OpModeCamera {
     final private double CATRight_DOWN = 0.09;
     final private double CATRight_DELTA = 0.001;
     final private boolean SLOW_INCREMENT = true;
-    final private double WINCHAngle_DOWN = 0.4;
-    final private double WINCHAngle_UP = 0.75;
+    final private double WINCHAngle_DOWN = 0.5;
+    final private double WINCHAngle_UP = 0.5;
 
     //final private double PLOWLeft_UP = 0.23137255;
     //final private double PLOWLeft_DOWN = 0.71;
@@ -70,6 +73,8 @@ public class DR_Blue extends OpModeCamera {
     private int ds2;
     private int x = 0;
     private float y = 0;
+
+    String statesstring;
 
     int colorR = 10;
     int colorL = 10;
@@ -102,17 +107,17 @@ public class DR_Blue extends OpModeCamera {
         ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
 
 
-        set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+        //set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
 
         current_state = States.INIT_MOTORS;
 
-        update_encoders();
+        //update_encoders();
 
         setCameraDownsampling(2);
         super.init();
         catLeftPosition = CATLeft_DOWN;
         catRightPosition = CATRight_DOWN;
-        winchAnglePosition = WINCHAngle_DOWN;
+        //winchAnglePosition = WINCHAngle_DOWN;
 
         // catLeft.setPosition(CATLeft_DOWN);
         // catRight.setPosition(CATRight_DOWN);
@@ -125,14 +130,14 @@ public class DR_Blue extends OpModeCamera {
         int ODSr = ODS.getLightDetectedRaw();
         catLeft.setPosition(catLeftPosition);
         catRight.setPosition(catRightPosition);
-        winchAngle.setPosition(winchAnglePosition);
+        //winchAngle.setPosition(winchAnglePosition);
         //plowLeft.setPosition(plowLeftPosition);
         //plowRight.setPosition(plowRightPosition);
         //plowInOut.setPosition(plowInOutPosition);
         if (ODSr < 8) {
             RGBSensor.enableLed(true);
             // float hsvValues[] = {6F, 6F, 6F};
-            telemetry.addData("ARGB", y);
+            ///telemetry.addData("ARGB", y);
 
         }
         else {
@@ -197,16 +202,20 @@ public class DR_Blue extends OpModeCamera {
                     colorStringRight = "BLUE";
             }
 
-            telemetry.addData("1 - Color Left", colorStringLeft);
+            /* telemetry.addData("1 - Color Left", colorStringLeft);
             telemetry.addData("2 - Left Red", redValueLeft);
             telemetry.addData("3 - Left Blue", blueValueLeft);
             telemetry.addData("1 - Color Right", colorStringRight);
             telemetry.addData("2 - Right Red", redValueRight);
             telemetry.addData("3 - Right Blue", blueValueRight);
+            */
         }
         a_state++;
+
+        //statesstring = statesstring + " " + current_state;
+
         telemetry.addData("7 - Case", current_state);
-        telemetry.addData("5 - a_state", a_state);
+        ///telemetry.addData("5 - a_state", statesstring);  // Causes NullPointerErrors
         telemetry.addData("6 - X:", x);
         //SCA = Range.clip(SCA, 0.05, 0.9);
         // Update encoder values
@@ -225,17 +234,17 @@ public class DR_Blue extends OpModeCamera {
                 //plowLeftPosition = PLOWLeft_DOWN;
                 //plowRightPosition = PLOWRight_DOWN;
                 //plowInOutPosition = PLOWInOut_IN;
-                winchAngle.setPosition(WINCHAngle_DOWN);
-                winchAngle.setPosition(WINCHAngle_UP);
-                sleep(9000);
+                winchAngle.setPosition(.78);
+                //winchAngle.setPosition(WINCHAngle_UP);
+                sleep(1000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
                 break;
 
             case DRIVE_FORWARD:
                 // Drive forward at 100% power
-                telemetry.addData("8 - Encoder Front", +motorLeftFront.getCurrentPosition());
-                telemetry.addData("8 - Encoder Rear", +motorLeftRear.getCurrentPosition());
+                ///telemetry.addData("8 - Encoder Front", +motorLeftFront.getCurrentPosition());
+                ///telemetry.addData("8 - Encoder Rear", +motorLeftRear.getCurrentPosition());
                 //sleep(100);
                 if (motorLeftFront.getCurrentPosition() >= 2000 + x) {
                     //telemetry.addData("Test:", "enc_reached");
@@ -245,7 +254,7 @@ public class DR_Blue extends OpModeCamera {
                     x = motorLeftFront.getCurrentPosition();
                     break;
                 } else {
-                    telemetry.addData("Test1", "else_statement");
+                    ///telemetry.addData("Test1", "else_statement");
                 }
                 break;
 
@@ -261,7 +270,7 @@ public class DR_Blue extends OpModeCamera {
                     current_state = States.RESTBDRIVE_FORWARD2;
                     x = motorLeftFront.getCurrentPosition();
                 } else {
-                    telemetry.addData("Test:", "Else_Statement");
+                    ///telemetry.addData("Test:", "Else_Statement");
                 }
                 break;
             case RESTBDRIVE_FORWARD2:
@@ -275,13 +284,20 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case DRIVEFORWARD2:
-                runUntilColor(0xDCDCDC,0xFFFFFF,.75,14000);
-                current_state = States.FOLLOW_LINE;
+                if(ODS.getLightDetectedRaw() < 16)
+                {
+                    RGBSensor.enableLed(true);
+                }
+                if (runUntilColor(180,220,.75,10000 + x)) {
+                    current_state = States.FOLLOW_LINE;
+                }
                 break;
 
             case FOLLOW_LINE:
-                lineFollow(0xFFFFFF, .50, true, 4);
-                current_state = States.DUMP_PEOPLE;
+                if (lineFollow(180, 220, .50, true, 20))
+                {
+                    current_state = States.DUMP_PEOPLE;
+                }
 
             case DUMP_PEOPLE:
                 if (catLeftPosition < CATLeft_UP) {
@@ -301,9 +317,11 @@ public class DR_Blue extends OpModeCamera {
                 //telemetry.addData("Test:", "run_enc");
                 break;
             default:
-                telemetry.addData("Case", "You're all done");
+                ///telemetry.addData("Case", "You're all done");
                 break;
         }
+        telemetry.addData("Color Sensor", RGBSensor.argb()/1000000);
+        telemetry.addData("Distance Sensor", ODS.getLightDetectedRaw());
         //telemetry.addData("LeftPosition", plowLeftPosition);
         //telemetry.addData("PlowRightPostition", plowRightPosition);
 
@@ -349,14 +367,14 @@ public class DR_Blue extends OpModeCamera {
         RF_enc = motorRightFront.getCurrentPosition();
     }
 
-    public void runUntilColor(double min, double max, double motorPower, int failEncoder) {
+    public boolean runUntilColor(double min, double max, double motorPower, int failEncoder) {
 
         motorLeftRear.setPower(motorPower);
         motorRightRear.setPower(motorPower);
         motorLeftFront.setPower(motorPower);
         motorRightFront.setPower(motorPower);
 
-        y = RGBSensor.argb();
+        y = RGBSensor.argb()/1000000;
 
         if (y >= min && y <= max) {
 
@@ -364,42 +382,73 @@ public class DR_Blue extends OpModeCamera {
             motorRightRear.setPower(0);
             motorLeftFront.setPower(0);
             motorRightFront.setPower(0);
+            flag = true;
 
         }
-        if (motorLeftRear.getCurrentPosition() >= failEncoder) {
+        /*if (motorLeftRear.getCurrentPosition() >= failEncoder) {
 
             motorLeftRear.setPower(0);
             motorRightRear.setPower(0);
             motorLeftFront.setPower(0);
             motorRightFront.setPower(0);
 
-        }
-        y = RGBSensor.argb();
+        }*/
+        y = RGBSensor.argb()/1000000;
+        telemetry.addData("RGB", RGBSensor.argb() / 1000000);
+        telemetry.addData("Distance", ODS.getLightDetectedRaw());
+        telemetry.addData("Y", y);
+
+        return flag;
+
     }
 
-    public void lineFollow(double color, double power, boolean right, double distance) {
+    public boolean lineFollow(double min, double max, double power, boolean right, double distance) {
 
         double power_l = power;
         double power_r = power;
 
-        while (ODS.getLightDetectedRaw() >= distance) {
+        while (ODS.getLightDetectedRaw() <= distance) {
+
+            //telemetry.addData("Left", power_l);
+            //telemetry.addData("Right", power_r);
+
+
             if (right) {
                 power_r += .1;          // Edit: The motor power is between -1 and 1, so adding 1 will break stuff...
                 power_l -= .1;
+
+                if (power_r >= 1){
+                    power_r = 1;
+                }
+                if (power_l <= -1){
+                    power_l = -1;
+                }
+
                 motorRightFront.setPower(power_r);
                 motorRightRear.setPower(power_r);
                 motorLeftFront.setPower(power_l);
                 motorLeftRear.setPower(power_l);
+
+                telemetry.addData("Stuff", "You should see this");
             }
             if (!right) {
                 power_l += .1;
                 power_r -= .1;
+
+                if (power_r <= -1){
+                    power_r = 1;
+                }
+                if (power_l >= 1){
+                    power_l = -1;
+                }
+
                 motorLeftFront.setPower(power_l);
                 motorLeftRear.setPower(power_l);
                 motorRightFront.setPower(power_r);
                 motorRightRear.setPower(power_r);
+
             }
-            if (y == color) {
+            if (y/1000000 >= min && y/1000000 <= max) {
                 right = !right;
                 motorRightFront.setPower(power);
                 motorRightRear.setPower(power);
@@ -407,10 +456,15 @@ public class DR_Blue extends OpModeCamera {
                 motorLeftRear.setPower(power);
             }
         }
+        if (ODS.getLightDetectedRaw() >= 20 && y/1000000 >= min && y/1000000 <= max)
+        {
+            flag1 = true;
+        }
         motorRightFront.setPower(0.0);
         motorRightRear.setPower(0.0);
         motorLeftFront.setPower(0.0);
         motorLeftRear.setPower(0.0);
+        return flag1;
 
     }
 
@@ -451,3 +505,5 @@ public class DR_Blue extends OpModeCamera {
         return y;
     }
 }
+
+
