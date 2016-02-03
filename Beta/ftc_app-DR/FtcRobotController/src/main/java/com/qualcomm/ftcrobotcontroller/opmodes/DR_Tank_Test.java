@@ -53,7 +53,7 @@ public class DR_Tank_Test extends OpMode{
     double catLeftDelta = 0.002;
     double catRightPosition  = 0.005;
     double catRightDelta = 0.002;
-    double winchAngleDelta = 0.001;
+    double winchAngleDelta = 0.0005;
     double winchAnglePosition = .78;
     //Servo plowLeft;
     //Servo plowRight;

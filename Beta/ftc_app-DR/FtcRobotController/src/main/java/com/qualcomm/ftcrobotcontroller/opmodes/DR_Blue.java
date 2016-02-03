@@ -26,10 +26,12 @@ public class DR_Blue extends OpModeCamera {
     DcMotor motorRightFront;
 
     Servo catLeft;
-    Servo catRight;
+    //Servo catRight;
 
     boolean flag = false;
-    boolean flag1 = false;
+    int flag1 = 3;
+    int flag2 = 3;
+    boolean hit = false;
 
     Servo winchAngle;
     //Servo plowLeft;
@@ -73,6 +75,8 @@ public class DR_Blue extends OpModeCamera {
     private int ds2;
     private int x = 0;
     private float y = 0;
+    public int rev = 0;
+    public boolean line;
 
     String statesstring;
 
@@ -97,7 +101,7 @@ public class DR_Blue extends OpModeCamera {
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
         catLeft = hardwareMap.servo.get("CatLeft");
-        catRight = hardwareMap.servo.get("CatRight");
+        //catRight = hardwareMap.servo.get("CatRight");
         //plowLeft = hardwareMap.servo.get("Left_Plow");
         //plowRight = hardwareMap.servo.get("Right_Plow");
         //plowInOut = hardwareMap.servo.get("InOut_Plow");
@@ -124,12 +128,15 @@ public class DR_Blue extends OpModeCamera {
 
         //plowLeft.setPosition(PLOWLeft_UP);
         //plowRight.setPosition(PLOWRight_UP);
+        line = false; //blue side of field
+
     }
 
     public void loop() {
+        y = RGBSensor.argb()/1000000;
         int ODSr = ODS.getLightDetectedRaw();
         catLeft.setPosition(catLeftPosition);
-        catRight.setPosition(catRightPosition);
+        //catRight.setPosition(catRightPosition);
         //winchAngle.setPosition(winchAnglePosition);
         //plowLeft.setPosition(plowLeftPosition);
         //plowRight.setPosition(plowRightPosition);
@@ -284,24 +291,64 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case DRIVEFORWARD2:
-                if(ODS.getLightDetectedRaw() < 16)
-                {
-                    RGBSensor.enableLed(true);
-                }
-                if (runUntilColor(180,220,.75,10000 + x)) {
+                if (y >= 180 && y <= 220){
+                    telemetry.addData("Color", "White");
+                    set_motor_power(0.0,0.0,0.0,0.0);
                     current_state = States.FOLLOW_LINE;
+                }
+                else
+                {
+                    telemetry.addData("Color", "Not White");
+
                 }
                 break;
 
             case FOLLOW_LINE:
-                if (lineFollow(180, 220, .50, true, 20))
-                {
+                telemetry.addData("Color", "LFWhite");
+                if (ODS.getLightDetectedRaw() < 50){
+                    if (lineFollow(180, 220, line) == 0)
+                    {
+                        if(flag2 ==1)
+                        {
+                            rev++;
+                        }
+                        flag2 = 0;
+                        set_motor_power(.5, .6, .5, .6);
+                        line = !line;
+                    }
+                    else if (lineFollow(180, 220, line) == 1)
+                        {
+                            if(flag2 ==0)
+                            {
+                                rev++;
+                            }
+                            flag2 = 1;
+                            set_motor_power(.6, .5, .6, .5);
+                            line = !line;
+                        }
+                        else if (flag1 == 2)
+                    {
+                        telemetry.addData("Stuff", "2");
+                    }
+                        {
+                            telemetry.addData("Stuff", "Invalid Line number");
+                        }
+                }
+                else{
+                    set_motor_power(0.0,0.0,0.0,0.0);
                     current_state = States.DUMP_PEOPLE;
                 }
+                telemetry.addData("Line", line);
+                telemetry.addData("Color", RGBSensor.argb()/1000000);
+                telemetry.addData("Loop", rev);
+                telemetry.addData("Left", motorLeftFront.getPower());
+                telemetry.addData("Right", motorRightFront.getPower());
+                telemetry.addData("Loops", flag2);
+                break;
 
             case DUMP_PEOPLE:
-                if (catLeftPosition < CATLeft_UP) {
-                    catLeftPosition += .1;
+                if (catLeftPosition > CATLeft_UP) {
+                    catLeftPosition -= .1;
                     sleep(50);
                 } else {
                     current_state = States.STOP;
@@ -320,8 +367,9 @@ public class DR_Blue extends OpModeCamera {
                 ///telemetry.addData("Case", "You're all done");
                 break;
         }
-        telemetry.addData("Color Sensor", RGBSensor.argb()/1000000);
+        telemetry.addData("Color Sensor", y);
         telemetry.addData("Distance Sensor", ODS.getLightDetectedRaw());
+        telemetry.addData("State", current_state);
         //telemetry.addData("LeftPosition", plowLeftPosition);
         //telemetry.addData("PlowRightPostition", plowRightPosition);
 
@@ -402,70 +450,21 @@ public class DR_Blue extends OpModeCamera {
 
     }
 
-    public boolean lineFollow(double min, double max, double power, boolean right, double distance) {
-
-        double power_l = power;
-        double power_r = power;
-
-        while (ODS.getLightDetectedRaw() <= distance) {
-
-            //telemetry.addData("Left", power_l);
-            //telemetry.addData("Right", power_r);
-
-
-            if (right) {
-                power_r += .1;          // Edit: The motor power is between -1 and 1, so adding 1 will break stuff...
-                power_l -= .1;
-
-                if (power_r >= 1){
-                    power_r = 1;
-                }
-                if (power_l <= -1){
-                    power_l = -1;
-                }
-
-                motorRightFront.setPower(power_r);
-                motorRightRear.setPower(power_r);
-                motorLeftFront.setPower(power_l);
-                motorLeftRear.setPower(power_l);
-
-                telemetry.addData("Stuff", "You should see this");
-            }
-            if (!right) {
-                power_l += .1;
-                power_r -= .1;
-
-                if (power_r <= -1){
-                    power_r = 1;
-                }
-                if (power_l >= 1){
-                    power_l = -1;
-                }
-
-                motorLeftFront.setPower(power_l);
-                motorLeftRear.setPower(power_l);
-                motorRightFront.setPower(power_r);
-                motorRightRear.setPower(power_r);
-
-            }
-            if (y/1000000 >= min && y/1000000 <= max) {
-                right = !right;
-                motorRightFront.setPower(power);
-                motorRightRear.setPower(power);
-                motorLeftFront.setPower(power);
-                motorLeftRear.setPower(power);
-            }
+    public int lineFollow(double min, double max, boolean right) {
+        y = RGBSensor.argb() / 1000000;
+        if (y >= min && y <= max) {
+            hit = true;
+            flag1 = 2;
         }
-        if (ODS.getLightDetectedRaw() >= 20 && y/1000000 >= min && y/1000000 <= max)
-        {
-            flag1 = true;
-        }
-        motorRightFront.setPower(0.0);
-        motorRightRear.setPower(0.0);
-        motorLeftFront.setPower(0.0);
-        motorLeftRear.setPower(0.0);
+
+            if (right && hit && !(y >= min && y <= max)) {
+                flag1 = 0;
+            }
+            if (!right && hit && !(y >= min && y <= max)) {
+                flag1 = 1;
+            }
+
         return flag1;
-
     }
 
     public float scanForClosest() {
