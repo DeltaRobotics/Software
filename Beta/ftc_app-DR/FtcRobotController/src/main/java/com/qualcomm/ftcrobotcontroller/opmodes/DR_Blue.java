@@ -244,8 +244,8 @@ public class DR_Blue extends OpModeCamera {
                 winchAngle.setPosition(.78);
                 //winchAngle.setPosition(WINCHAngle_UP);
                 sleep(1000);
-                set_motor_power(1.0, 1.0, 1.0, 1.0);
-                current_state = States.DRIVE_FORWARD;
+                set_motor_power(0.15, 0.15, 0.15, 0.15);
+                current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
 
             case DRIVE_FORWARD:
@@ -286,12 +286,14 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case SETUP_DRIVE_FORWARD2:
-                set_motor_power(1.0, 1.0, 1.0, 1.0);
+                set_motor_power(0.15, 0.15, 0.15, 0.15);
                 current_state = States.DRIVEFORWARD2;
                 break;
 
             case DRIVEFORWARD2:
-                if (y >= 180 && y <= 220){
+                if (y >= 100 && y <= 280){
+                    telemetry.addData("Left", motorLeftFront.getCurrentPosition());
+                    telemetry.addData("Right", motorRightFront.getCurrentPosition());
                     telemetry.addData("Color", "White");
                     set_motor_power(0.0,0.0,0.0,0.0);
                     current_state = States.FOLLOW_LINE;
@@ -306,24 +308,29 @@ public class DR_Blue extends OpModeCamera {
             case FOLLOW_LINE:
                 telemetry.addData("Color", "LFWhite");
                 if (ODS.getLightDetectedRaw() < 50){
-                    if (lineFollow(180, 220, line) == 0)
+                    if (rev == 0)
+                    {
+                        set_motor_power (0.15,-0.15,0.15,-0.15);
+                        rev++;
+                    } else
+                    if (lineFollow(100, 280, line) == 0)
                     {
                         if(flag2 ==1)
                         {
                             rev++;
                         }
                         flag2 = 0;
-                        set_motor_power(.5, .6, .5, .6);
+                        set_motor_power(.2, .1, .2, .1);
                         line = !line;
                     }
-                    else if (lineFollow(180, 220, line) == 1)
+                    else if (lineFollow(100, 280, line) == 1)
                         {
                             if(flag2 ==0)
                             {
                                 rev++;
                             }
                             flag2 = 1;
-                            set_motor_power(.6, .5, .6, .5);
+                            set_motor_power(.1, .2, .1, .2);
                             line = !line;
                         }
                         else if (flag1 == 2)
@@ -333,17 +340,18 @@ public class DR_Blue extends OpModeCamera {
                         {
                             telemetry.addData("Stuff", "Invalid Line number");
                         }
+                    sleep(250);
                 }
                 else{
                     set_motor_power(0.0,0.0,0.0,0.0);
                     current_state = States.DUMP_PEOPLE;
                 }
-                telemetry.addData("Line", line);
+                telemetry.addData("Right is", line);
                 telemetry.addData("Color", RGBSensor.argb()/1000000);
                 telemetry.addData("Loop", rev);
-                telemetry.addData("Left", motorLeftFront.getPower());
-                telemetry.addData("Right", motorRightFront.getPower());
                 telemetry.addData("Loops", flag2);
+                telemetry.addData("Hit", hit);
+
                 break;
 
             case DUMP_PEOPLE:
@@ -459,9 +467,11 @@ public class DR_Blue extends OpModeCamera {
 
             if (right && hit && !(y >= min && y <= max)) {
                 flag1 = 0;
+                hit = false;
             }
             if (!right && hit && !(y >= min && y <= max)) {
                 flag1 = 1;
+                hit = false;
             }
 
         return flag1;
