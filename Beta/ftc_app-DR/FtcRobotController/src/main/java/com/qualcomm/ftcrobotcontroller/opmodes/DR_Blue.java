@@ -25,6 +25,8 @@ public class DR_Blue extends OpModeCamera {
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
 
+    Servo plowLeft;
+    Servo plowRight;
     Servo catLeft;
     //Servo catRight;
 
@@ -41,30 +43,31 @@ public class DR_Blue extends OpModeCamera {
     ColorSensor RGBSensor;
     OpticalDistanceSensor ODS;
 
-    final private double CATLeft_UP = 0.114;
-    final private double CATLeft_DOWN = 0.60;
+    final private double CATLeft_UP = 0.184;
+    final private double CATLeft_DOWN = 0.769;
     final private double CATLeft_DELTA = 0.001;
-    final private double CATRight_UP = 0.802;
-    final private double CATRight_DOWN = 0.40;
-    final private double CATRight_DELTA = 0.001;
-    final private boolean SLOW_INCREMENT = true;
-    final private double WINCHAngle_DOWN = 0.5;
-    final private double WINCHAngle_UP = 0.5;
+    //final private double CATRight_UP = 0.802;
+    //final private double CATRight_DOWN = 0.40;
+    //final private double CATRight_DELTA = 0.001;
+    //final private boolean SLOW_INCREMENT = true;
+    //final private double WINCHAngle_DOWN = 0.5;
+    //final private double WINCHAngle_UP = 0.5;
 
-    //final private double PLOWLeft_UP = 0.23137255;
-    //final private double PLOWLeft_DOWN = 0.71;
-    //final private double PLOWLeft_DELTA = 0.002;
-    //final private double PLOWRight_UP = 0.64705884;
-    //final private double PLOWRight_DOWN = 0.11;
-    //final private double PLOWRight_DELTA = 0.002;
+    final private double PLOWLeft_UP = 0.957;
+    final private double PLOWLeft_DOWN = 0.087;
+    final private double PLOWLeft_DELTA = 0.005;
+    final private double PLOWRight_UP = 0.047;
+    final private double PLOWRight_DOWN = 0.867;
+    final private double PLOWRight_DELTA = 0.002;
     //final private double PLOWInOut_IN = .4;
     //final private double PLOWInOut_OUT = .83;
+    final private double WINCHAngle_UP = .64;
 
     private double catLeftPosition;
     private double catRightPosition;
     private double winchAnglePosition;
-    //private double plowLeftPosition;
-    //private double plowRightPosition;
+    private double plowLeftPosition;
+    private double plowRightPosition;
     //private double plowInOutPosition;
 
     private int a_state = 0;
@@ -106,8 +109,8 @@ public class DR_Blue extends OpModeCamera {
 
         catLeft = hardwareMap.servo.get("CatLeft");
         //catRight = hardwareMap.servo.get("CatRight");
-        //plowLeft = hardwareMap.servo.get("Left_Plow");
-        //plowRight = hardwareMap.servo.get("Right_Plow");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
         //plowInOut = hardwareMap.servo.get("InOut_Plow");
         winchAngle = hardwareMap.servo.get("Winch_Angle");
 
@@ -124,8 +127,8 @@ public class DR_Blue extends OpModeCamera {
         setCameraDownsampling(2);
         super.init();
         catLeftPosition = CATLeft_DOWN;
-        catRightPosition = CATRight_DOWN;
-        //winchAnglePosition = WINCHAngle_DOWN;
+        //catRightPosition = CATRight_DOWN;
+        winchAnglePosition = WINCHAngle_UP;
 
         // catLeft.setPosition(CATLeft_DOWN);
         // catRight.setPosition(CATRight_DOWN);
@@ -141,9 +144,9 @@ public class DR_Blue extends OpModeCamera {
         int ODSr = ODS.getLightDetectedRaw();
         catLeft.setPosition(catLeftPosition);
         //catRight.setPosition(catRightPosition);
-        //winchAngle.setPosition(winchAnglePosition);
-        //plowLeft.setPosition(plowLeftPosition);
-        //plowRight.setPosition(plowRightPosition);
+        winchAngle.setPosition(winchAnglePosition);
+        plowLeft.setPosition(plowLeftPosition);
+        plowRight.setPosition(plowRightPosition);
         //plowInOut.setPosition(plowInOutPosition);
         if (ODSr < 8) {
             RGBSensor.enableLed(true);
@@ -246,11 +249,11 @@ public class DR_Blue extends OpModeCamera {
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
                 //telemetry.addData("Test:", "run_enc");
 
-                //plowLeftPosition = PLOWLeft_DOWN;
-                //plowRightPosition = PLOWRight_DOWN;
+
+                plowLeftPosition = PLOWLeft_DOWN;
+                plowRightPosition = PLOWRight_DOWN;
                 //plowInOutPosition = PLOWInOut_IN;
-                winchAngle.setPosition(.78);
-                //winchAngle.setPosition(WINCHAngle_UP);
+                winchAnglePosition = WINCHAngle_UP;
                 sleep(1000);
                 set_motor_power(0.15, 0.15, 0.15, 0.15);
                 current_state = States.SETUP_DRIVE_FORWARD2;
@@ -318,15 +321,18 @@ public class DR_Blue extends OpModeCamera {
                 }
                 break;
             case SHORT_FORWARD:
-                if (motorLeftFront.getCurrentPosition() < x + 200)
+                if (motorLeftFront.getCurrentPosition() < x + 250)
                 {
                     telemetry.addData("X", "x");
                 }
                 else
                 {
-                    set_motor_power(0.2,-0.2,0.2,-0.2);
+                    set_motor_power(0.15,-0.15,0.15,-0.15);
                     current_state = States.FOLLOW_LINE;
                 }
+                plowLeftPosition = PLOWLeft_DOWN;
+                plowRightPosition = PLOWRight_DOWN;
+                break;
 
             case FOLLOW_LINE:
                 telemetry.addData("Color", "LFWhite");
@@ -342,23 +348,23 @@ public class DR_Blue extends OpModeCamera {
                         if (!(y >= 80 && y <= 280) && hit) {
                             telemetry.addData("Loop", "Off-Line");
                             if (!line) {
-                                set_motor_power(-0.1, 0.2, -0.1, 0.2);
+                                set_motor_power(-0.1, 0.17, -0.1, 0.17);
                             }
                             if (line) {
-                                set_motor_power(0.2, -0.1, 0.2, -0.1);
+                                set_motor_power(0.17, -0.1, 0.17, -0.1);
                             }
                             hit = false;
                             line = !line;
-                            catLeft.setPosition(.5);
+                            //catLeft.setPosition(.5);
                         } else {
                             telemetry.addData("Loop", "On-Line");
-                            catLeft.setPosition(.6);
+                            //catLeft.setPosition(.6);
                         }
                     }
                 }
                     else{
                         set_motor_power(0.0,0.0,0.0,0.0);
-                        current_state = States.BACK_UP;
+                        current_state = States.DUMP_PEOPLE;
 
                     }
 
@@ -410,37 +416,49 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case BACK_UP:
-                if(motorLeftFront.getCurrentPosition() > x-500)
+                if(motorLeftFront.getCurrentPosition() >= x)
                 {
                     set_motor_power(-.5,-.5,-.5,-.5);
+                    telemetry.addData("Loop", "Back-Up");
+                    catLeftPosition = CATLeft_DOWN;
                 }
                 else{
+                    set_motor_power(0.0,0.0,0.0,0.0);
                     if(right == 1 && left == 2){
                         side_to_hit = 0;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
                     }
                     else if(right == 2 && left == 1){
                         side_to_hit = 1;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
                     }
                     else {
                         telemetry.addData("Loop","Invalid Analysis");
                         side_to_hit = 2;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
                     }
-                    current_state = States.DUMP_PEOPLE;
+                    current_state = States.STOP;
 
                 }
+                break;
             case DUMP_PEOPLE:
                 if (catLeftPosition > CATLeft_UP) {
                     catLeftPosition -= .1;
-                    sleep(50);
+                    sleep(100);
                 } else {
+                    sleep(1000);
                     if(side_to_hit == 1){
                         telemetry.addData("The Blue Side Is","Right");
                     }
                     if(side_to_hit == 0){
                         telemetry.addData("The Blue Side Is","Left");
                     }
-                    current_state = States.STOP;
+                    current_state = States.BACK_UP;
                 }
+                x = motorLeftFront.getCurrentPosition();
                 break;
 
             case STOP:
@@ -455,6 +473,8 @@ public class DR_Blue extends OpModeCamera {
                 ///telemetry.addData("Case", "You're all done");
                 break;
         }
+        telemetry.addData("X",x);
+        telemetry.addData("Left Encoder", motorLeftFront.getCurrentPosition());
         telemetry.addData("Color Sensor", y);
         telemetry.addData("Distance Sensor", ODS.getLightDetectedRaw());
         telemetry.addData("State", current_state);

@@ -37,10 +37,10 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorWinchLeft;
     DcMotor motorWinchRight;
     DcMotor motorWinchHelp;
-    DcMotor motorSweeper;
+    //DcMotor motorSweeper;
 
     Servo catLeft;
-    Servo catRight;
+    //Servo catRight;
 
     Servo winchAngle;
 
@@ -49,22 +49,22 @@ public class DR_Tank_Test extends OpMode{
 
     //ColorSensor colorSensor;
 
-    double catLeftPosition  = 0.909;
+    double catLeftPosition  = 0.800;
     double catLeftDelta = 0.002;
     double catRightPosition  = 0.005;
     double catRightDelta = 0.002;
     double winchAngleDelta = 0.0005;
     double winchAnglePosition = .78;
-    //Servo plowLeft;
-    //Servo plowRight;
+    Servo plowLeft;
+    Servo plowRight;
     //Servo plowInOut;
     //Servo armColorSensor;
 
-    //double plowDelta = 0.001;
-    //double plowDeltaLeft = plowDelta;
-    //double plowDeltaRight = -plowDelta;
-    //double plowPositionLeft = 0.5;
-    //double plowPositionRight = 0.5;
+    double plowDelta = 0.005;
+    double plowDeltaLeft = plowDelta;
+    double plowDeltaRight = -plowDelta;
+    double plowPositionLeft = 0.5;
+    double plowPositionRight = 0.5;
     //double inOutPosition = 0.0;
     //double inOutDelta = 0.005;
 
@@ -97,41 +97,41 @@ public class DR_Tank_Test extends OpMode{
         winchAngle = hardwareMap.servo.get("Winch_Angle");
         winchAngle.setPosition(winchAnglePosition);
 
-        motorSweeper = hardwareMap.dcMotor.get("Sweeper");
+        //motorSweeper = hardwareMap.dcMotor.get("Sweeper");
 
         catLeft = hardwareMap.servo.get("CatLeft");
-        catLeft.setPosition(0.886);
-        catLeftPosition = 0.886;
+        catLeft.setPosition(0.769);
+        catLeftPosition = 0.769;
 
-        catRight = hardwareMap.servo.get("CatRight");
-        catRight.setPosition(0.09);
+        //catRight = hardwareMap.servo.get("CatRight");
+        //catRight.setPosition(0.09);
         catRightPosition = 0.09;
 
-        //plowLeft = hardwareMap.servo.get("Left_Plow");
-        //plowRight = hardwareMap.servo.get("Right_Plow");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
         //plowInOut = hardwareMap.servo.get("InOut_Plow");
 
         //leftLever = hardwareMap.dcMotor.get("Left_Lever");
         //rightLever = hardwareMap.dcMotor.get("Right_Lever");
         //colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
-        //plowLeft.setPosition(0.23137255);
-        //plowRight.setPosition(0.64705884);
+        plowLeft.setPosition(0.957);
+        plowRight.setPosition(0.047);
         //plowInOut.setPosition(.455);
-        //plowPositionLeft = 0.7697843;
-        //plowPositionRight = 0.11372549;
+        plowPositionLeft = 0.957;
+        plowPositionRight = 0.047;
 
 
 
         speed_mode = true;
-        //plowLeft.setPosition(0.7607843);
-        //plowRight.setPosition(0.11372549);
-        //plowPositionLeft = 0.76;
-        //plowPositionRight = 0.11;
+        //plowLeft.setPosition(0.5);
+        //plowRight.setPosition(0.5);
+        //plowPositionLeft = 0.5;
+        //plowPositionRight = 0.5;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sweeperF = false;
-        sweeperR = false;
+        //sweeperF = false;
+        //sweeperR = false;
     }
 
     public void start() {
@@ -143,12 +143,12 @@ public class DR_Tank_Test extends OpMode{
         //public void onAccuracyChanged(Sensor sensor, int accuracy) {
          }
         public void loop() {
-            //plowPositionLeft = Range.clip(plowPositionLeft, 0.10, 0.80);
-            //plowPositionRight = Range.clip(plowPositionRight, 0.10, 0.8);
+            plowPositionLeft = Range.clip(plowPositionLeft, 0.027, 0.957);
+            plowPositionRight = Range.clip(plowPositionRight, 0.047, 0.867);
             //inOutPosition = Range.clip(inOutPosition, 0.18, 0.78);
 
-            catLeftPosition = Range.clip(catLeftPosition, 0.114, 0.886);
-            catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
+            catLeftPosition = Range.clip(catLeftPosition, 0.184, 0.800);
+            //catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
             winchAnglePosition = Range.clip(winchAnglePosition, 0.002, .997);
 
             double throttleLB = gamepad1.left_stick_y;
@@ -172,7 +172,7 @@ public class DR_Tank_Test extends OpMode{
 
             motorWinchLeft.setPower(throttleWinch);
             motorWinchRight.setPower(-throttleWinch);
-            motorWinchHelp.setPower(-throttleWinch/3);
+            motorWinchHelp.setPower(throttleWinch/3);
             //rightLever.setPower(-rightLeverThrottle);
 
             motorLeftRear.setPower(-throttleLB);
@@ -188,90 +188,73 @@ public class DR_Tank_Test extends OpMode{
                 catLeftPosition += catLeftDelta;
             }
 
-            if (gamepad2.y) {
-                catRightPosition += catRightDelta;
-            }
-            if (gamepad2.a) {
-                catRightPosition -= catRightDelta;
-            }
+            //if (gamepad2.y) {
+            //    catRightPosition += catRightDelta;
+            //}
+            //if (gamepad2.a) {
+            //    catRightPosition -= catRightDelta;
+            //}
             if (gamepad2.right_trigger > .2) {
                 winchAnglePosition += winchAngleDelta;
             }
             if (gamepad2.right_bumper) {
                 winchAnglePosition -= winchAngleDelta;
             }
-            if (count > 10)
-            {
-                if(gamepad1.a) {
-                    sweeperF = !sweeperF;
-                    count = 0;
-                }
-                if(gamepad1.b) {
-                    sweeperR = !sweeperR;
-                    count = 0;
-                }
-            }
+            //if (count > 10)
+            //{
+            //    if(gamepad1.a) {
+            //        sweeperF = !sweeperF;
+            //        count = 0;
+            //    }
+            //    if(gamepad1.b) {
+            //        sweeperR = !sweeperR;
+            //        count = 0;
+            //    }
+            //}
 
-            /*
-            if (gamepad2.right_bumper) {
-                plowPositionLeft -= plowDeltaLeft;
-                plowPositionRight -= plowDeltaRight;
-            }
-            if (gamepad2.right_trigger > 0.2) {
-                plowPositionLeft += plowDeltaLeft;
+            if (gamepad1.right_bumper)
+            {
                 plowPositionRight += plowDeltaRight;
             }
-            if (gamepad2.left_bumper) {
-                inOutPosition += inOutDelta;
+            if (gamepad1.right_trigger > .5)
+            {
+                plowPositionRight -= plowDeltaRight;
             }
-            if (gamepad2.left_trigger > 0.2) {
-                inOutPosition -= inOutDelta;
+            if (gamepad1.left_bumper)
+            {
+                plowPositionLeft += plowDeltaLeft;
             }
-            */
-        /*if (gamepad2.y)
-        {
-            plowPositionLeft = 0.61;
-            plowPositionRight = 0.39;
-        }
-        if (gamepad2.a) {
-            plowPositionLeft = 0.05;
-            plowPositionRight = 0.95;
-        }
+            if (gamepad1.left_trigger > .5)
+            {
+                plowPositionLeft -= plowDeltaLeft;
+            }
 
-            if (gamepad2.b) {
-                inOutPosition = 0.001;
-            }
-            if (gamepad2.x) {
-                inOutPosition = 0.83;
-            }
-            */
-            //plowInOut.setPosition(inOutPosition);
-            //plowLeft.setPosition(plowPositionLeft);
-            //plowRight.setPosition(plowPositionRight);
+            plowLeft.setPosition(plowPositionLeft);
+            plowRight.setPosition(plowPositionRight);
             //armColorSensor.setPosition(armColorSensorPosition);
 
             catLeft.setPosition(catLeftPosition);
-            catRight.setPosition(catRightPosition);
+            //catRight.setPosition(catRightPosition);
             winchAngle.setPosition(winchAnglePosition);
-           if(sweeperF)
-           {
-               motorSweeper.setPower(1.0);
-           }
-            else
-           {
-               motorSweeper.setPower(0.0);
-           }
-           if(!sweeperF)
-           {
-               if(sweeperR)
-               {
-                   motorSweeper.setPower(-1.0);
-               }
-               else
-               {
-                   motorSweeper.setPower(0.0);
-               }
-           }
+           //if(sweeperF)
+           //{
+           //    motorSweeper.setPower(1.0);
+           //}
+           // else
+           //{
+           //    motorSweeper.setPower(0.0);
+           //}
+           //if(!sweeperF)
+           //{
+           //    if(sweeperR)
+           //    {
+           //        motorSweeper.setPower(-1.0);
+           //    }
+           //    else
+           //    {
+           //        motorSweeper.setPower(0.0);
+           //    }
+           //}
 
                 /*telemetry.addData("Left Rear:"
                 , +motorLeftRear.getPower()
@@ -285,12 +268,12 @@ public class DR_Tank_Test extends OpMode{
                 telemetry.addData("Right Front:"
                 ,   + motorRightFront.getPower()
                     + motorRightFront.getCurrentPosition()); */
-            //telemetry.addData("Left Plow:", plowLeft.getPosition());
-            //telemetry.addData("Right Plow:", plowRight.getPosition());
+            telemetry.addData("Left Plow:", plowLeft.getPosition());
+            telemetry.addData("Right Plow:", plowRight.getPosition());
             //telemetry.addData("InOut Plow:", plowInOut.getPosition());
             count++;
             telemetry.addData("CatLeft:", catLeft.getPosition());
-            telemetry.addData("CatRight:", catRight.getPosition());
+            //telemetry.addData("CatRight:", catRight.getPosition());
             telemetry.addData("Throttle LB", throttleLB);
             telemetry.addData("Throttle LF", throttleLF);
             telemetry.addData("Throttle RB", throttleRB);
