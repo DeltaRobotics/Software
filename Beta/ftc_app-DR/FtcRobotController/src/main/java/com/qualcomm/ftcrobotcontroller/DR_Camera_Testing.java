@@ -15,6 +15,7 @@ public class DR_Camera_Testing extends OpModeCamera {
 
     public void loop() {
         long startTime = System.currentTimeMillis();
+
         if (imageReady()) {
             int redValueLeft = -76800;
             int blueValueLeft = -76800;
