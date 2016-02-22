@@ -16,8 +16,8 @@ public class DR_Auto_Setup extends OpMode {
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
 
-    Servo catLeft;
-    Servo catRight;
+    //Servo catLeft;
+    //Servo catRight;
 
     boolean flag = false;
     boolean flag1 = false;
@@ -41,8 +41,8 @@ public class DR_Auto_Setup extends OpMode {
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-        catLeft = hardwareMap.servo.get("CatLeft");
-        catRight = hardwareMap.servo.get("CatRight");
+        //catLeft = hardwareMap.servo.get("CatLeft");
+        //catRight = hardwareMap.servo.get("CatRight");
         //plowLeft = hardwareMap.servo.get("Left_Plow");
         //plowRight = hardwareMap.servo.get("Right_Plow");
         //plowInOut = hardwareMap.servo.get("InOut_Plow");
@@ -51,16 +51,16 @@ public class DR_Auto_Setup extends OpMode {
         RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
         ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
         winchAngle.setPosition(.64);
-        catLeft.setPosition(0.886);
-        catRight.setPosition(0.09);
+        //catLeft.setPosition(0.886);
+        //catRight.setPosition(0.09);
 
     }
 
     public void loop() {
 
         winchAngle.setPosition(.64);
-        catLeft.setPosition(0.886);
-        catRight.setPosition(0.09);
+        //catLeft.setPosition(0.886);
+        //catRight.setPosition(0.09);
 
     }
 

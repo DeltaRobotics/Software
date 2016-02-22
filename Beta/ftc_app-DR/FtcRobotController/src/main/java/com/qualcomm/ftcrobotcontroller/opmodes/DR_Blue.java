@@ -27,7 +27,7 @@ public class DR_Blue extends OpModeCamera {
 
     Servo plowLeft;
     Servo plowRight;
-    Servo catLeft;
+//    Servo catLeft;
     //Servo catRight;
 
     boolean flag = false;
@@ -63,8 +63,8 @@ public class DR_Blue extends OpModeCamera {
     //final private double PLOWInOut_OUT = .83;
     final private double WINCHAngle_UP = .64;
 
-    private double catLeftPosition;
-    private double catRightPosition;
+//    private double catLeftPosition;
+//    private double catRightPosition;
     private double winchAnglePosition;
     private double plowLeftPosition;
     private double plowRightPosition;
@@ -107,7 +107,7 @@ public class DR_Blue extends OpModeCamera {
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-        catLeft = hardwareMap.servo.get("CatLeft");
+//        catLeft = hardwareMap.servo.get("CatLeft");
         //catRight = hardwareMap.servo.get("CatRight");
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
@@ -126,7 +126,7 @@ public class DR_Blue extends OpModeCamera {
 
         setCameraDownsampling(2);
         super.init();
-        catLeftPosition = CATLeft_DOWN;
+//        catLeftPosition = CATLeft_DOWN;
         //catRightPosition = CATRight_DOWN;
         winchAnglePosition = WINCHAngle_UP;
 
@@ -142,7 +142,7 @@ public class DR_Blue extends OpModeCamera {
     public void loop() {
         y = RGBSensor.argb()/1000000;
         int ODSr = ODS.getLightDetectedRaw();
-        catLeft.setPosition(catLeftPosition);
+//        catLeft.setPosition(catLeftPosition);
         //catRight.setPosition(catRightPosition);
         winchAngle.setPosition(winchAnglePosition);
         plowLeft.setPosition(plowLeftPosition);
@@ -255,7 +255,7 @@ public class DR_Blue extends OpModeCamera {
                 //plowInOutPosition = PLOWInOut_IN;
                 winchAnglePosition = WINCHAngle_UP;
                 sleep(1000);
-                set_motor_power(0.15, 0.15, 0.15, 0.15);
+                set_motor_power(0.10, 0.10, 0.10, 0.10);
                 current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
 
@@ -298,11 +298,11 @@ public class DR_Blue extends OpModeCamera {
 
             case SETUP_DRIVE_FORWARD2:
                 if(y >= 40 && y <= 280){
-                    set_motor_power(0.20, 0.20, 0.20, 0.20);
+                    set_motor_power(0.15, 0.15, 0.15, 0.15);
                     current_state = States.DRIVEFORWARD2;
                 }
                 else{
-                    set_motor_power(0.20, 0.20, 0.20, 0.20);
+                    set_motor_power(0.15, 0.15, 0.15, 0.15);
                 }
                 break;
 
@@ -420,7 +420,7 @@ public class DR_Blue extends OpModeCamera {
                 {
                     set_motor_power(-.5,-.5,-.5,-.5);
                     telemetry.addData("Loop", "Back-Up");
-                    catLeftPosition = CATLeft_DOWN;
+//                    catLeftPosition = CATLeft_DOWN;
                 }
                 else{
                     set_motor_power(0.0,0.0,0.0,0.0);
@@ -445,10 +445,10 @@ public class DR_Blue extends OpModeCamera {
                 }
                 break;
             case DUMP_PEOPLE:
-                if (catLeftPosition > CATLeft_UP) {
-                    catLeftPosition -= .1;
-                    sleep(100);
-                } else {
+//                if (catLeftPosition > CATLeft_UP) {
+//                    catLeftPosition -= .1;
+//                    sleep(100);
+//                } else {
                     sleep(1000);
                     if(side_to_hit == 1){
                         telemetry.addData("The Blue Side Is","Right");
@@ -457,7 +457,6 @@ public class DR_Blue extends OpModeCamera {
                         telemetry.addData("The Blue Side Is","Left");
                     }
                     current_state = States.BACK_UP;
-                }
                 x = motorLeftFront.getCurrentPosition();
                 break;
 

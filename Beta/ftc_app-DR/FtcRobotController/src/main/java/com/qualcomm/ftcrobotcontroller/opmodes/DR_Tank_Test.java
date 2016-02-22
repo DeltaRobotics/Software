@@ -39,7 +39,7 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorWinchHelp;
     //DcMotor motorSweeper;
 
-    Servo catLeft;
+//    Servo catLeft;
     //Servo catRight;
 
     Servo winchAngle;
@@ -99,13 +99,13 @@ public class DR_Tank_Test extends OpMode{
 
         //motorSweeper = hardwareMap.dcMotor.get("Sweeper");
 
-        catLeft = hardwareMap.servo.get("CatLeft");
-        catLeft.setPosition(0.769);
-        catLeftPosition = 0.769;
+//        catLeft = hardwareMap.servo.get("CatLeft");
+//        catLeft.setPosition(0.769);
+//        catLeftPosition = 0.769;
 
         //catRight = hardwareMap.servo.get("CatRight");
         //catRight.setPosition(0.09);
-        catRightPosition = 0.09;
+//        catRightPosition = 0.09;
 
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
@@ -147,7 +147,7 @@ public class DR_Tank_Test extends OpMode{
             plowPositionRight = Range.clip(plowPositionRight, 0.047, 0.867);
             //inOutPosition = Range.clip(inOutPosition, 0.18, 0.78);
 
-            catLeftPosition = Range.clip(catLeftPosition, 0.184, 0.800);
+//            catLeftPosition = Range.clip(catLeftPosition, 0.184, 0.800);
             //catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
             winchAnglePosition = Range.clip(winchAnglePosition, 0.002, .997);
 
@@ -170,7 +170,7 @@ public class DR_Tank_Test extends OpMode{
             throttleRF = Range.clip(throttleRF, -1.0, 1.0);
             throttleWinch = Range.clip(throttleWinch, -1.0, 1.0);
 
-            motorWinchLeft.setPower(throttleWinch);
+            motorWinchLeft.setPower(-throttleWinch);
             motorWinchRight.setPower(-throttleWinch);
             motorWinchHelp.setPower(throttleWinch/3);
             //rightLever.setPower(-rightLeverThrottle);
@@ -181,12 +181,12 @@ public class DR_Tank_Test extends OpMode{
             motorRightFront.setPower(-throttleRF);
 
 
-            if (gamepad2.dpad_up) {
-                catLeftPosition -= catLeftDelta;
-            }
-            if (gamepad2.dpad_down) {
-                catLeftPosition += catLeftDelta;
-            }
+//            if (gamepad2.dpad_up) {
+//                catLeftPosition -= catLeftDelta;
+//            }
+//            if (gamepad2.dpad_down) {
+//                catLeftPosition += catLeftDelta;
+//            }
 
             //if (gamepad2.y) {
             //    catRightPosition += catRightDelta;
@@ -233,7 +233,7 @@ public class DR_Tank_Test extends OpMode{
             plowRight.setPosition(plowPositionRight);
             //armColorSensor.setPosition(armColorSensorPosition);
 
-            catLeft.setPosition(catLeftPosition);
+//            catLeft.setPosition(catLeftPosition);
             //catRight.setPosition(catRightPosition);
             winchAngle.setPosition(winchAnglePosition);
            //if(sweeperF)
@@ -256,23 +256,23 @@ public class DR_Tank_Test extends OpMode{
            //    }
            //}
 
-                /*telemetry.addData("Left Rear:"
-                , +motorLeftRear.getPower()
-                + motorLeftRear.getCurrentPosition());
-                telemetry.addData("Right Rear:"
-                ,   +motorRightRear.getPower()
-                    + motorRightRear.getCurrentPosition());
-                telemetry.addData("Left Front:"
-                ,   + motorLeftFront.getPower ()
-                    + motorLeftFront.getCurrentPosition());
-                telemetry.addData("Right Front:"
-                ,   + motorRightFront.getPower()
-                    + motorRightFront.getCurrentPosition()); */
-            telemetry.addData("Left Plow:", plowLeft.getPosition());
-            telemetry.addData("Right Plow:", plowRight.getPosition());
+                //telemetry.addData("Left Rear:"
+                //, +motorLeftRear.getPower()
+                //+ motorLeftRear.getCurrentPosition());
+                //telemetry.addData("Right Rear:"
+                //,   +motorRightRear.getPower()
+                //    + motorRightRear.getCurrentPosition());
+                //telemetry.addData("Left Front:"
+                //,   + motorLeftFront.getPower ()
+                ///    + motorLeftFront.getCurrentPosition());
+                //telemetry.addData("Right Front:"
+                //,   + motorRightFront.getPower()
+                //    + motorRightFront.getCurrentPosition()); */
+            //telemetry.addData("Left Plow:", plowLeft.getPosition());
+            //telemetry.addData("Right Plow:", plowRight.getPosition());
             //telemetry.addData("InOut Plow:", plowInOut.getPosition());
             count++;
-            telemetry.addData("CatLeft:", catLeft.getPosition());
+//            telemetry.addData("CatLeft:", catLeft.getPosition());
             //telemetry.addData("CatRight:", catRight.getPosition());
             telemetry.addData("Throttle LB", throttleLB);
             telemetry.addData("Throttle LF", throttleLF);
@@ -290,28 +290,27 @@ public class DR_Tank_Test extends OpMode{
         }
     //possible issue
 //@Override
-        /*public void onSensorChanged(SensorEvent event)
-        {
-            telemetry.addData ("ASensor", "Sensor Hit");
-            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-            {
+        //public void onSensorChanged(SensorEvent event)
+        //{
+          //  telemetry.addData ("ASensor", "Sensor Hit");
+            //if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            //{
                  //get the change of the x,y,z values of the accelerometer
-                deltaX = Math.abs(lastX - event.values[0]);
-                deltaY = Math.abs(lastY - event.values[1]);
-                deltaZ = Math.abs(lastZ - event.values[2]);
+                //deltaX = Math.abs(lastX - event.values[0]);
+                //deltaY = Math.abs(lastY - event.values[1]);
+                //deltaZ = Math.abs(lastZ - event.values[2]);
                  //if the change is below 2, it is just plain noise
-                if (deltaX < 2)
-                    deltaX = 0;
-                if (deltaY < 2)
-                    deltaY = 0;
-                if (deltaZ < 2)
-                    deltaZ = 0;
+                //if (deltaX < 2)
+                //    deltaX = 0;
+                //if (deltaY < 2)
+                //   deltaY = 0;
+                //if (deltaZ < 2)
+                //    deltaZ = 0;
 
-                accelX = deltaX;
-                accelY = deltaY;
-                accelZ = deltaZ;
-            }
-            */
+                //accelX = deltaX;
+                //accelY = deltaY;
+                //accelZ = deltaZ;
+            //}
 
           //  }
     double scaleInputRearHigh(double dVal) {
