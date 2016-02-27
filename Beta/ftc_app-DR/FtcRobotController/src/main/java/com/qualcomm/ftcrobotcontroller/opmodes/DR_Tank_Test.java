@@ -26,6 +26,9 @@ public class DR_Tank_Test extends OpMode{
     public boolean sweeperF;
     public boolean sweeperR;
 
+    public boolean skeeball = false;
+    public boolean drive = true;
+
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
@@ -39,18 +42,24 @@ public class DR_Tank_Test extends OpMode{
     DcMotor motorWinchHelp;
     //DcMotor motorSweeper;
 
+    Servo plowLeft;
+    Servo plowRight;
     Servo catLeft;
-    //Servo catRight;
-
     Servo winchAngle;
+
+    Servo armVert;
+    Servo armGrab;
 
 
     //ColorSensor RGBSensor;
 
     //ColorSensor colorSensor;
-
-    double leftLeverPosition = 0.5;
-    double rightLeverPosition = 0.5;
+    double armVertPosition = 0.988;
+    double armGrabPosition = 0.878;
+    double armVertDelta = 0.005;
+    double armGrabDelta = 0.005;
+    double leftLeverPosition = 0.019;
+    double rightLeverPosition = 0.878;
     double leftLeverDelta = 0.01;
     double rightLeverDelta = 0.01;
     double catLeftPosition  = 0.800;
@@ -59,8 +68,6 @@ public class DR_Tank_Test extends OpMode{
     double catRightDelta = 0.002;
     double winchAngleDelta = 0.0005;
     double winchAnglePosition = .78;
-    Servo plowLeft;
-    Servo plowRight;
     //Servo plowInOut;
     //Servo armColorSensor;
 
@@ -104,8 +111,8 @@ public class DR_Tank_Test extends OpMode{
         //motorSweeper = hardwareMap.dcMotor.get("Sweeper");
 
         catLeft = hardwareMap.servo.get("CatLeft");
-        catLeft.setPosition(0.769);
-        catLeftPosition = 0.769;
+        catLeft.setPosition(0.79);
+        catLeftPosition = 0.79;
 
         leftLever = hardwareMap.servo.get("Left_Lever");
         leftLever.setPosition(leftLeverPosition);
@@ -115,11 +122,13 @@ public class DR_Tank_Test extends OpMode{
 
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
-        //plowInOut = hardwareMap.servo.get("InOut_Plow");
 
-        //leftLever = hardwareMap.dcMotor.get("Left_Lever");
-        //rightLever = hardwareMap.dcMotor.get("Right_Lever");
-        //colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
+        armVert = hardwareMap.servo.get("Vertical_Arm");
+        armVert.setPosition(armVertPosition);
+
+        armGrab = hardwareMap.servo.get("Grabber_Arm");
+        armGrab.setPosition(armGrabPosition);
+
         plowLeft.setPosition(0.957);
         plowRight.setPosition(0.047);
         //plowInOut.setPosition(.455);
@@ -129,10 +138,6 @@ public class DR_Tank_Test extends OpMode{
 
 
         speed_mode = true;
-        //plowLeft.setPosition(0.5);
-        //plowRight.setPosition(0.5);
-        //plowPositionLeft = 0.5;
-        //plowPositionRight = 0.5;
 
         //mSensorManager = (SensorManager) hardwareMap.appContext.getSystemService(Context.SENSOR_SERVICE);
         //accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -149,16 +154,17 @@ public class DR_Tank_Test extends OpMode{
         //public void onAccuracyChanged(Sensor sensor, int accuracy) {
          }
         public void loop() {
-            plowPositionLeft = Range.clip(plowPositionLeft, 0.1569, 0.957);
+            plowPositionLeft = Range.clip(plowPositionLeft, 0.1, 0.937);
             plowPositionRight = Range.clip(plowPositionRight, 0.047, 0.867);
             //inOutPosition = Range.clip(inOutPosition, 0.18, 0.78);
 
             catLeftPosition = Range.clip(catLeftPosition, 0.184, 0.800);
             //catRightPosition = Range.clip(catRightPosition, 0.09, 0.862);
             winchAnglePosition = Range.clip(winchAnglePosition, 0.002, .997);
-            leftLeverPosition = Range.clip(leftLeverPosition, 0.019,0.98);
-            rightLeverPosition = Range.clip(rightLeverPosition, 0.02,0.878);
-
+            leftLeverPosition = Range.clip(leftLeverPosition, 0.076,0.924);
+            rightLeverPosition = Range.clip(rightLeverPosition, 0.076,0.878);
+            armGrabPosition = Range.clip(armGrabPosition, 0.01, 0.99);
+            armVertPosition = Range.clip(armVertPosition, 0.0313, 0.99);
             double throttleLB = gamepad1.left_stick_y;
             double throttleRB = gamepad1.right_stick_y;
             double throttleLF = gamepad1.left_stick_y;
@@ -183,10 +189,20 @@ public class DR_Tank_Test extends OpMode{
             motorWinchHelp.setPower(-throttleWinch/3);
             //rightLever.setPower(-rightLeverThrottle);
 
-            motorLeftRear.setPower(-throttleLB);
-            motorLeftFront.setPower(-throttleLF);
-            motorRightRear.setPower(-throttleRB);
-            motorRightFront.setPower(-throttleRF);
+            if(drive)
+            {
+                motorLeftRear.setPower(-throttleLB);
+                motorLeftFront.setPower(-throttleLF);
+                motorRightRear.setPower(-throttleRB);
+                motorRightFront.setPower(-throttleRF);
+            }
+            else
+            {
+                motorLeftRear.setPower(throttleLB);
+                motorLeftFront.setPower(throttleLF);
+                motorRightRear.setPower(throttleRB);
+                motorRightFront.setPower(throttleRF);
+            }
 
 
             if (gamepad2.left_trigger > .5) {
@@ -246,12 +262,51 @@ public class DR_Tank_Test extends OpMode{
                 plowPositionLeft -= plowDeltaLeft;
             }
 
+            if(gamepad2.left_stick_y > 0.2)
+            {
+                armVertPosition += armVertDelta;
+            }
+            if(gamepad2.left_stick_y < -0.2)
+            {
+                armVertPosition -= armVertDelta;
+            }
+
+            if(gamepad2.x)
+            {
+                armGrabPosition += armGrabDelta;
+            }
+            if(gamepad2.b)
+            {
+                armGrabPosition -= armGrabDelta;
+            }
+
+            if(gamepad2.guide)
+            {
+                skeeball = !skeeball;
+            }
+            if(skeeball)
+            {
+                leftLeverDelta = 0.075;
+                rightLeverDelta = 0.075;
+            }
+            else
+            {
+                leftLeverDelta = 0.01;
+                rightLeverDelta = 0.01;
+            }
+            if(gamepad1.guide)
+            {
+                drive = !drive;
+            }
+
             plowLeft.setPosition(plowPositionLeft);
             plowRight.setPosition(plowPositionRight);
             catLeft.setPosition(catLeftPosition);
             winchAngle.setPosition(winchAnglePosition);
             leftLever.setPosition(leftLeverPosition);
             rightLever.setPosition(rightLeverPosition);
+            armGrab.setPosition(armGrabPosition);
+            armVert.setPosition(armVertPosition);
            //if(sweeperF)
            //{
            //    motorSweeper.setPower(1.0);
@@ -293,12 +348,12 @@ public class DR_Tank_Test extends OpMode{
             telemetry.addData("CatLeft:", catLeft.getPosition());
             telemetry.addData("Left Plow", plowLeft.getPosition());
             telemetry.addData("Right Plow", plowRight.getPosition());
-            telemetry.addData("Throttle LB", throttleLB);
-            telemetry.addData("Throttle LF", throttleLF);
-            telemetry.addData("Throttle RB", throttleRB);
-            telemetry.addData("Throttle RF", throttleRF);
+            telemetry.addData("Arm Grabber", armGrab.getPosition());
+            telemetry.addData("Arm Vertical", armVert.getPosition());
             telemetry.addData("Winch Angle", winchAngle.getPosition());
             telemetry.addData("rev", rev);
+            telemetry.addData("skeeball", skeeball);
+            telemetry.addData("drive", drive);
             //telemetry.addData("RBG",RGBSensor.argb());
 
 

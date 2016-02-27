@@ -16,14 +16,15 @@ public class DR_Auto_Setup extends OpMode {
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
 
-    //Servo catLeft;
-    //Servo catRight;
+    Servo catLeft;
+    Servo armVert;
+    Servo armGrab;
+    Servo leftLever;
+    Servo rightLever;
 
     Servo plowLeft;
     Servo plowRight;
 
-    boolean flag = false;
-    boolean flag1 = false;
 
     Servo winchAngle;
     //Servo plowLeft;
@@ -32,13 +33,6 @@ public class DR_Auto_Setup extends OpMode {
 
     ColorSensor RGBSensor;
     OpticalDistanceSensor ODS;
-
-    double plowDelta = 0.005;
-    double plowDeltaLeft = plowDelta;
-    double plowDeltaRight = -plowDelta;
-    double plowPositionLeft = 0.5;
-    double plowPositionRight = 0.5;
-    ;
 
     @Override
     public void init() {
@@ -49,35 +43,46 @@ public class DR_Auto_Setup extends OpMode {
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-        //catLeft = hardwareMap.servo.get("CatLeft");
-        //catRight = hardwareMap.servo.get("CatRight");
-        //plowLeft = hardwareMap.servo.get("Left_Plow");
-        //plowRight = hardwareMap.servo.get("Right_Plow");
-        //plowInOut = hardwareMap.servo.get("InOut_Plow");
+        catLeft = hardwareMap.servo.get("CatLeft");
+        leftLever = hardwareMap.servo.get("Left_Lever");
+        leftLever.setPosition(0.019);
+
+        rightLever = hardwareMap.servo.get("Right_Lever");
+        rightLever.setPosition(0.878);
+
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
+
+        armVert = hardwareMap.servo.get("Vertical_Arm");
+        armVert.setPosition(0.988);
+
+        armGrab = hardwareMap.servo.get("Grabber_Arm");
+        armGrab.setPosition(0.878);
         winchAngle = hardwareMap.servo.get("Winch_Angle");
 
         RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
         ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
+
         plowLeft.setPosition(0.957);
         plowRight.setPosition(0.047);
-        //plowInOut.setPosition(.455);
-        plowPositionLeft = 0.957;
-        plowPositionRight = 0.047;
-        winchAngle.setPosition(.64);
-        //catLeft.setPosition(0.886);
-        //catRight.setPosition(0.09);
+        winchAngle.setPosition(0.64);
+        catLeft.setPosition(0.7255);
 
     }
 
     public void loop() {
 
-        winchAngle.setPosition(.64);
-        plowLeft.setPosition(.957);
-        plowRight.setPosition(.047);
-        //catLeft.setPosition(0.886);
-        //catRight.setPosition(0.09);
+        winchAngle.setPosition(0.64);
+        plowLeft.setPosition(0.957);
+        plowRight.setPosition(0.047);
+        catLeft.setPosition(0.7255);
+        leftLever.setPosition(0.019);
+        rightLever.setPosition(0.878);
+        armGrab.setPosition(0.878);
+        armVert.setPosition(0.988);
+
 
     }
 

@@ -27,8 +27,12 @@ public class DR_Blue extends OpModeCamera {
 
     Servo plowLeft;
     Servo plowRight;
-//    Servo catLeft;
-    //Servo catRight;
+    Servo catLeft;
+
+    Servo armVert;
+    Servo armGrab;
+    Servo leftLever;
+    Servo rightLever;
 
     boolean flag = false;
     int flag1 = 3;
@@ -36,9 +40,6 @@ public class DR_Blue extends OpModeCamera {
     boolean hit = false;
 
     Servo winchAngle;
-    //Servo plowLeft;
-    //Servo plowRight;
-    //Servo plowInOut;
 
     ColorSensor RGBSensor;
     OpticalDistanceSensor ODS;
@@ -53,8 +54,8 @@ public class DR_Blue extends OpModeCamera {
     //final private double WINCHAngle_DOWN = 0.5;
     //final private double WINCHAngle_UP = 0.5;
 
-    final private double PLOWLeft_UP = 0.957;
-    final private double PLOWLeft_DOWN = 0.087;
+    final private double PLOWLeft_UP = 0.937;
+    final private double PLOWLeft_DOWN = 0.1;
     final private double PLOWLeft_DELTA = 0.005;
     final private double PLOWRight_UP = 0.047;
     final private double PLOWRight_DOWN = 0.867;
@@ -63,11 +64,16 @@ public class DR_Blue extends OpModeCamera {
     //final private double PLOWInOut_OUT = .83;
     final private double WINCHAngle_UP = .64;
 
-//    private double catLeftPosition;
-//    private double catRightPosition;
+    double armVertPosition = 0.988;
+    double armGrabPosition = 0.878;
+    double leftLeverPosition = 0.019;
+    double rightLeverPosition = 0.878;
+
+    private double catLeftPosition = .79;
+    private double catRightPosition;
     private double winchAnglePosition;
-    private double plowLeftPosition;
-    private double plowRightPosition;
+    private double plowLeftPosition = PLOWLeft_UP;
+    private double plowRightPosition = PLOWRight_UP;
     //private double plowInOutPosition;
 
     private int a_state = 0;
@@ -92,7 +98,7 @@ public class DR_Blue extends OpModeCamera {
 
     double white = .15;
 
-    enum States {BACK_UP, SHORT_FORWARD, INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
+    enum States {BACK_DUMP, APPROACH, SETUP_APPROACH, BACK_UP, SHORT_FORWARD, INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
 
     ;
 
@@ -107,7 +113,7 @@ public class DR_Blue extends OpModeCamera {
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-//        catLeft = hardwareMap.servo.get("CatLeft");
+        catLeft = hardwareMap.servo.get("CatLeft");
         //catRight = hardwareMap.servo.get("CatRight");
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
@@ -116,6 +122,17 @@ public class DR_Blue extends OpModeCamera {
 
         RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
         ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
+
+        armVert = hardwareMap.servo.get("Vertical_Arm");
+        armVert.setPosition(armVertPosition);
+
+        armGrab = hardwareMap.servo.get("Grabber_Arm");
+        armGrab.setPosition(armGrabPosition);
+        leftLever = hardwareMap.servo.get("Left_Lever");
+        leftLever.setPosition(leftLeverPosition);
+
+        rightLever = hardwareMap.servo.get("Right_Lever");
+        rightLever.setPosition(rightLeverPosition);
 
 
         //set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -126,15 +143,15 @@ public class DR_Blue extends OpModeCamera {
 
         setCameraDownsampling(2);
         super.init();
-//        catLeftPosition = CATLeft_DOWN;
+        catLeft.setPosition(CATLeft_DOWN);
         //catRightPosition = CATRight_DOWN;
         winchAnglePosition = WINCHAngle_UP;
 
         // catLeft.setPosition(CATLeft_DOWN);
         // catRight.setPosition(CATRight_DOWN);
 
-        //plowLeft.setPosition(PLOWLeft_UP);
-        //plowRight.setPosition(PLOWRight_UP);
+        plowLeft.setPosition(PLOWLeft_UP);
+        plowRight.setPosition(PLOWRight_UP);
         line = false; //blue side of field
 
     }
@@ -142,12 +159,15 @@ public class DR_Blue extends OpModeCamera {
     public void loop() {
         y = RGBSensor.argb()/1000000;
         int ODSr = ODS.getLightDetectedRaw();
-//        catLeft.setPosition(catLeftPosition);
+        catLeft.setPosition(catLeftPosition);
         //catRight.setPosition(catRightPosition);
         winchAngle.setPosition(winchAnglePosition);
         plowLeft.setPosition(plowLeftPosition);
         plowRight.setPosition(plowRightPosition);
-        //plowInOut.setPosition(plowInOutPosition);
+        leftLever.setPosition(leftLeverPosition);
+        rightLever.setPosition(rightLeverPosition);
+        armGrab.setPosition(armGrabPosition);
+        armVert.setPosition(armVertPosition);
         if (ODSr < 8) {
             RGBSensor.enableLed(true);
             // float hsvValues[] = {6F, 6F, 6F};
@@ -242,55 +262,58 @@ public class DR_Blue extends OpModeCamera {
         switch (current_state) {
             // Setup motor encoders
             case INIT_MOTORS:
-                //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                //telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
-                //telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-                //telemetry.addData("Test:", "run_enc");
-
 
                 plowLeftPosition = PLOWLeft_DOWN;
                 plowRightPosition = PLOWRight_DOWN;
-                //plowInOutPosition = PLOWInOut_IN;
                 winchAnglePosition = WINCHAngle_UP;
                 sleep(1000);
-                set_motor_power(0.10, 0.10, 0.10, 0.10);
+                set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
 
             case DRIVE_FORWARD:
-                // Drive forward at 100% power
-                ///telemetry.addData("8 - Encoder Front", +motorLeftFront.getCurrentPosition());
-                ///telemetry.addData("8 - Encoder Rear", +motorLeftRear.getCurrentPosition());
-                //sleep(100);
                 if (motorLeftFront.getCurrentPosition() >= 2000 + x) {
-                    //telemetry.addData("Test:", "enc_reached");
                     current_state = States.RESTBPIVOT;
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    //telemetry.addData("Test1", "if_statement");
                     x = motorLeftFront.getCurrentPosition();
                     break;
                 } else {
-                    ///telemetry.addData("Test1", "else_statement");
+                    telemetry.addData("Test1", "else_statement");
                 }
                 break;
 
             case RESTBPIVOT:
                 sleep(500);
-                set_motor_power(1.0, -1.0, 1.0, -1.0);
+                set_motor_power(-1.0, 1.0, -1.0, 1.0);
                 current_state = States.PIVOT;
                 break;
 
             case PIVOT:
                 if (motorLeftFront.getCurrentPosition() >= 1300 + x) {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    current_state = States.RESTBDRIVE_FORWARD2;
+                    current_state = States.SETUP_APPROACH;
                     x = motorLeftFront.getCurrentPosition();
                 } else {
-                    ///telemetry.addData("Test:", "Else_Statement");
+                    telemetry.addData("Test:", "Else_Statement");
                 }
                 break;
+            case SETUP_APPROACH:
+                set_motor_power(1.0,1.0,1.0,1.0);
+                current_state = States.APPROACH;
+                break;
+            case APPROACH:
+                if (motorLeftFront.getCurrentPosition() >= 4000 + x) {
+                    set_motor_power(0.0, 0.0, 0.0, 0.0);
+                    current_state = States.RESTBDRIVE_FORWARD2;
+                    x = motorLeftFront.getCurrentPosition();
+                    break;
+                }
+                else {
+                    telemetry.addData("Test:", "Else_Statement");
+                    break;
+                }
             case RESTBDRIVE_FORWARD2:
                 sleep(500);
                 current_state = States.SETUP_DRIVE_FORWARD2;
@@ -362,11 +385,12 @@ public class DR_Blue extends OpModeCamera {
                         }
                     }
                 }
-                    else{
-                        set_motor_power(0.0,0.0,0.0,0.0);
-                        current_state = States.DUMP_PEOPLE;
+                else{
+                    x = motorLeftFront.getCurrentPosition();
+                    set_motor_power(0.0,0.0,0.0,0.0);
+                    current_state = States.BACK_DUMP;
 
-                    }
+                }
 
                 //if (ODS.getLightDetectedRaw() < 50){
                 //    if (rev == 0)
@@ -416,11 +440,20 @@ public class DR_Blue extends OpModeCamera {
                 break;
 
             case BACK_UP:
+                catLeft.setPosition(.79);
+                catLeftPosition = .79;
+                sleep(1000);
+                if (side_to_hit == 1) {
+                    telemetry.addData("The Blue Side Is", "Right");
+                }
+                if (side_to_hit == 0) {
+                    telemetry.addData("The Blue Side Is", "Left");
+                }
                 if(motorLeftFront.getCurrentPosition() >= x)
                 {
                     set_motor_power(-.5,-.5,-.5,-.5);
                     telemetry.addData("Loop", "Back-Up");
-//                    catLeftPosition = CATLeft_DOWN;
+                    catLeftPosition = CATLeft_DOWN;
                 }
                 else{
                     set_motor_power(0.0,0.0,0.0,0.0);
@@ -445,21 +478,24 @@ public class DR_Blue extends OpModeCamera {
                 }
                 break;
             case DUMP_PEOPLE:
-//                if (catLeftPosition > CATLeft_UP) {
-//                    catLeftPosition -= .1;
-//                    sleep(100);
-//                } else {
-                    sleep(1000);
-                    if(side_to_hit == 1){
-                        telemetry.addData("The Blue Side Is","Right");
-                    }
-                    if(side_to_hit == 0){
-                        telemetry.addData("The Blue Side Is","Left");
-                    }
+                if (catLeftPosition > CATLeft_UP) {
+                    catLeftPosition -= .05;
+                    sleep(50);
+                } else {
                     current_state = States.BACK_UP;
+                }
                 x = motorLeftFront.getCurrentPosition();
                 break;
 
+            case BACK_DUMP:
+                if(motorLeftFront.getCurrentPosition() > x - 350)
+                {
+                    set_motor_power(-.5,-.5,-.5,-.5);
+                }
+                else
+                {
+                    current_state = States.DUMP_PEOPLE;
+                }
             case STOP:
                 //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
@@ -564,14 +600,14 @@ public class DR_Blue extends OpModeCamera {
             flag1 = 2;
         }
 
-            if (right && hit && !(y >= min && y <= max)) {
-                flag1 = 0;
-                hit = false;
-            }
-            if (!right && hit && !(y >= min && y <= max)) {
-                flag1 = 1;
-                hit = false;
-            }
+        if (right && hit && !(y >= min && y <= max)) {
+            flag1 = 0;
+            hit = false;
+        }
+        if (!right && hit && !(y >= min && y <= max)) {
+            flag1 = 1;
+            hit = false;
+        }
 
         return flag1;
     }
@@ -613,5 +649,3 @@ public class DR_Blue extends OpModeCamera {
         return y;
     }
 }
-
-

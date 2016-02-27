@@ -1,59 +1,106 @@
 package com.qualcomm.ftcrobotcontroller.opmodes;
+import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.view.View;
+
+import com.qualcomm.ftcrobotcontroller.DR_Camera_Testing;
+import com.qualcomm.ftcrobotcontroller.OpModeCamera;
+import com.qualcomm.ftcrobotcontroller.R;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorController;
+import com.qualcomm.robotcore.hardware.OpticalDistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 
 /**
  * Created by Delta on 10/10/2015.
  */
-public class DR_Red extends OpMode {
+public class DR_Red extends OpModeCamera {
 
-    ColorSensor colorSensor;
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
     DcMotor motorLeftFront;
     DcMotor motorRightFront;
-    //Servo armColorSensor;
+
     Servo plowLeft;
     Servo plowRight;
-    Servo plowInOut;
     Servo catLeft;
-    Servo catRight;
-    //double SCA;
-    //double SCAdelta;
-    double pL;
-    double pLdelta;
-    double pR;
-    double pRdelta;
-    double plowdelta;
-    double plowUp = 0.9;
-    double InOut;
-    double pldown = 0.7607843;
-    double prdown = 0.11372549;
+
+    Servo armVert;
+    Servo armGrab;
+    Servo leftLever;
+    Servo rightLever;
+
+    boolean flag = false;
+    int flag1 = 3;
+    int flag2 = 3;
+    boolean hit = false;
+
+    Servo winchAngle;
+
+    ColorSensor RGBSensor;
+    OpticalDistanceSensor ODS;
+
+    final private double CATLeft_UP = 0.184;
+    final private double CATLeft_DOWN = 0.769;
+    final private double CATLeft_DELTA = 0.001;
+    //final private double CATRight_UP = 0.802;
+    //final private double CATRight_DOWN = 0.40;
+    //final private double CATRight_DELTA = 0.001;
+    //final private boolean SLOW_INCREMENT = true;
+    //final private double WINCHAngle_DOWN = 0.5;
+    //final private double WINCHAngle_UP = 0.5;
+
+    final private double PLOWLeft_UP = 0.937;
+    final private double PLOWLeft_DOWN = 0.1;
+    final private double PLOWLeft_DELTA = 0.005;
+    final private double PLOWRight_UP = 0.047;
+    final private double PLOWRight_DOWN = 0.867;
+    final private double PLOWRight_DELTA = 0.002;
+    //final private double PLOWInOut_IN = .4;
+    //final private double PLOWInOut_OUT = .83;
+    final private double WINCHAngle_UP = .64;
+
+    double armVertPosition = 0.988;
+    double armGrabPosition = 0.878;
+    double leftLeverPosition = 0.019;
+    double rightLeverPosition = 0.878;
+
+    private double catLeftPosition = .79;
+    private double catRightPosition;
+    private double winchAnglePosition;
+    private double plowLeftPosition = PLOWLeft_UP;
+    private double plowRightPosition = PLOWRight_UP;
+    //private double plowInOutPosition;
+
     private int a_state = 0;
     private int LR_enc;
     private int RR_enc;
     private int LF_enc;
     private int RF_enc;
-    private int currentEncLR;
-    private int currentEncLF;
-    private int currentEncRR;
-    private int currentEncRF;
-    final private double CATLeft_UP = 0.114;
-    final private double CATLeft_DOWN = 0.886;
-    final private double CATLeft_DELTA = 0.001;
-    final private double CATRight_UP = 0.802;
-    final private double CATRight_DOWN = 0.09;
-    final private double CATRight_DELTA = 0.001;
-    final private boolean SLOW_INCREMENT = true;
+    private int ds2;
     private int x = 0;
-    int floorColor;
+    private float y = 0;
+    public int rev = 0;
+    public boolean line;
+    public int floor = 0;
+    public int left;
+    public int right;
+    public int side_to_hit;
 
+    String statesstring;
 
-    enum States {INIT_MOTORS,DRIVE_FORWARD,PIVOT,DRIVE_FORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2};
+    int colorR = 10;
+    int colorL = 10;
+
+    double white = .15;
+
+    enum States {BACK_DUMP, APPROACH, SETUP_APPROACH, BACK_UP, SHORT_FORWARD, INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
+
+    ;
 
     States current_state;
 
@@ -66,175 +113,425 @@ public class DR_Red extends OpMode {
         motorRightFront = hardwareMap.dcMotor.get("Drive_Right_Front");
         motorRightFront.setDirection(DcMotor.Direction.REVERSE);
 
-        set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-
-
+        catLeft = hardwareMap.servo.get("CatLeft");
+        //catRight = hardwareMap.servo.get("CatRight");
         plowLeft = hardwareMap.servo.get("Left_Plow");
         plowRight = hardwareMap.servo.get("Right_Plow");
-        //armColorSensor = hardwareMap.servo.get("ColorSensor_arm");
-        plowInOut = hardwareMap.servo.get("InOut_Plow");
-        catLeft = hardwareMap.servo.get("CatLeft");
-        catRight = hardwareMap.servo.get("CatRight");
-        //SCA = 0.80;
+        //plowInOut = hardwareMap.servo.get("InOut_Plow");
+        winchAngle = hardwareMap.servo.get("Winch_Angle");
 
-        colorSensor = hardwareMap.colorSensor.get("Color_Sensor");
-        InOut = .455;
-        plowInOut.setPosition(InOut);
-        //SCAdelta = 0.05;
-        plowdelta = 0.05;
-        pL = 0.23137255;
-        pLdelta = plowdelta;
-        pR = 0.64705884;
-        pRdelta = -plowdelta;
-        plowLeft.setPosition(pL);
-        plowRight.setPosition(pR);
+        RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
+        ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
 
-        catLeft.setPosition(CATLeft_DOWN);
-        catRight.setPosition(CATRight_DOWN);
-        //armColorSensor.setPosition(SCA);u
+        armVert = hardwareMap.servo.get("Vertical_Arm");
+        armVert.setPosition(armVertPosition);
+
+        armGrab = hardwareMap.servo.get("Grabber_Arm");
+        armGrab.setPosition(armGrabPosition);
+        leftLever = hardwareMap.servo.get("Left_Lever");
+        leftLever.setPosition(leftLeverPosition);
+
+        rightLever = hardwareMap.servo.get("Right_Lever");
+        rightLever.setPosition(rightLeverPosition);
+
+
+        //set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+
         current_state = States.INIT_MOTORS;
 
-        update_encoders();
-    }
-    public void loop(){
-        a_state++;
-        telemetry.addData("Case", current_state);
-        telemetry.addData("a_state", a_state);
-        telemetry.addData("X:", x);
-        //SCA = Range.clip(SCA, 0.05, 0.9);
-        pL = Range.clip(pL, 0.05, 0.9);
-        pR = Range.clip(pR, 0.05, 0.9);
+        //update_encoders();
 
+        setCameraDownsampling(2);
+        super.init();
+        catLeft.setPosition(CATLeft_DOWN);
+        //catRightPosition = CATRight_DOWN;
+        winchAnglePosition = WINCHAngle_UP;
+
+        // catLeft.setPosition(CATLeft_DOWN);
+        // catRight.setPosition(CATRight_DOWN);
+
+        plowLeft.setPosition(PLOWLeft_UP);
+        plowRight.setPosition(PLOWRight_UP);
+        line = true; //red side of field
+
+    }
+
+    public void loop() {
+        y = RGBSensor.argb()/1000000;
+        int ODSr = ODS.getLightDetectedRaw();
+        catLeft.setPosition(catLeftPosition);
+        //catRight.setPosition(catRightPosition);
+        winchAngle.setPosition(winchAnglePosition);
+        plowLeft.setPosition(plowLeftPosition);
+        plowRight.setPosition(plowRightPosition);
+        leftLever.setPosition(leftLeverPosition);
+        rightLever.setPosition(rightLeverPosition);
+        armGrab.setPosition(armGrabPosition);
+        armVert.setPosition(armVertPosition);
+        if (ODSr < 8) {
+            RGBSensor.enableLed(true);
+            // float hsvValues[] = {6F, 6F, 6F};
+            ///telemetry.addData("ARGB", y);
+
+        }
+        else {
+            RGBSensor.enableLed(false);
+        }
+        if (imageReady()) {
+            int redValueLeft = -76800;
+            int blueValueLeft = -76800;
+            int greenValueLeft = -76800;
+            int redValueRight = -76800;
+            int blueValueRight = -76800;
+            int greenValueRight = -76800;
+
+            Bitmap rgbImage;
+            rgbImage = convertYuvImageToRgb(yuvImage, width, height, ds2);
+            for (int x = 0; x < 320; x++) {
+                for (int y = 121; y < 240; y++) {
+                    int pixelL = rgbImage.getPixel(x, y);
+                    redValueLeft += red(pixelL);
+                    blueValueLeft += blue(pixelL);
+                    greenValueLeft += green(pixelL);
+                }
+            }
+            for (int a = 0; a < 320; a++) {
+                for (int b = 0; b < 120; b++) {
+                    int pixelR = rgbImage.getPixel(a, b);
+                    redValueRight += red(pixelR);
+                    blueValueRight += blue(pixelR);
+                    greenValueRight += green(pixelR);
+                }
+            }
+            redValueLeft = normalizePixels(redValueLeft);
+            blueValueLeft = normalizePixels(blueValueLeft);
+            //greenValueLeft = normalizePixels(greenValueLeft);
+            redValueRight = normalizePixels(redValueRight);
+            blueValueRight = normalizePixels(blueValueRight);
+            //greenValueRight = normalizePixels(greenValueRight);
+            int colorLeft = highestColor(redValueLeft, blueValueLeft);
+            int colorRight = highestColor(redValueRight, blueValueRight);
+            String colorStringLeft = "";
+            String colorStringRight = "";
+            colorR = colorRight;
+            colorL = colorLeft;
+            switch (colorLeft) {
+                case 0:
+                    colorStringLeft = "RED";
+                    left = 1;
+                    break;
+                case 1:
+                    colorStringLeft = "Color Undetected.";
+                    break;
+                case 2:
+                    colorStringLeft = "BLUE";
+                    left = 2;
+            }
+            switch (colorRight) {
+                case 0:
+                    colorStringRight = "RED";
+                    right = 1;
+                    break;
+                case 1:
+                    colorStringRight = "Color Undetected.";
+                    break;
+                case 2:
+                    colorStringRight = "BLUE";
+                    right = 2;
+            }
+            if(right == 1)
+            {
+                telemetry.addData("Right", "Red");
+            }
+            if(right == 2)
+            {
+                telemetry.addData("Right", "Blue");
+            }
+            if(left == 1)
+            {
+                telemetry.addData("Left", "Red");
+            }
+            if(left == 2)
+            {
+                telemetry.addData("Left", "Blue");
+            }
+
+            /* telemetry.addData("1 - Color Left", colorStringLeft);
+            telemetry.addData("2 - Left Red", redValueLeft);
+            telemetry.addData("3 - Left Blue", blueValueLeft);
+            telemetry.addData("1 - Color Right", colorStringRight);
+            telemetry.addData("2 - Right Red", redValueRight);
+            telemetry.addData("3 - Right Blue", blueValueRight);
+            */
+        }
+        a_state++;
+
+        //statesstring = statesstring + " " + current_state;
+
+        telemetry.addData("7 - Case", current_state);
+        ///telemetry.addData("5 - a_state", statesstring);  // Causes NullPointerErrors
+        telemetry.addData("6 - X:", x);
+        //SCA = Range.clip(SCA, 0.05, 0.9);
         // Update encoder values
-        currentEncLR = LR_enc;
-        currentEncLF = LF_enc;
-        currentEncRR = RR_enc;
-        currentEncRF = RF_enc;
+
 
         switch (current_state) {
             // Setup motor encoders
             case INIT_MOTORS:
-                while(pldown >= pL && prdown <= pR) {
-                    pL += 0.001;
-                    pR -= 0.001;
-                    pL = Range.clip(pL,0.10,0.8);
-                    pR = Range.clip(pR,0.10,0.8);
-                    plowLeft.setPosition(pL);
-                    plowRight.setPosition(pR);
-
-                }
-                telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
-                telemetry.addData("Test:", "reset_enc");
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-                telemetry.addData("Test:", "run_enc");
 
-                // plowLeft.setPosition(0.0196);
-                //plowRight.setPosition(0.9686);
-                plowInOut.setPosition(0.25);
-                sleep(10000);
+                plowLeftPosition = PLOWLeft_DOWN;
+                plowRightPosition = PLOWRight_DOWN;
+                winchAnglePosition = WINCHAngle_UP;
+                sleep(1000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
-                current_state = States.DRIVE_FORWARD;
+                current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
+
             case DRIVE_FORWARD:
-                // Drive forward at 100% power
-                telemetry.addData("Encoder Front", +motorLeftFront.getCurrentPosition());
-                telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
-                //sleep(100);
-                if (has_Left_encoder_reached(x + 12000)) {
-                    motorLeftRear.setPower(0);
-                    motorRightRear.setPower(0);
-                    motorLeftFront.setPower(0);
-                    motorRightFront.setPower(0);
-                    telemetry.addData("Test:", "enc_reached");
-                    current_state = States.STOP;
-                    telemetry.addData("Test1", "if_statement");
+                if (motorLeftFront.getCurrentPosition() >= 2000 + x) {
+                    current_state = States.RESTBPIVOT;
+                    set_motor_power(0.0, 0.0, 0.0, 0.0);
                     x = motorLeftFront.getCurrentPosition();
                     break;
-                }
-                else {
+                } else {
                     telemetry.addData("Test1", "else_statement");
                 }
-                break;
-            case STOP:
-                telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
-                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
-                telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
-                telemetry.addData("Test:", "reset_enc");
-                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-                telemetry.addData("Test:", "run_enc");
                 break;
 
             case RESTBPIVOT:
                 sleep(500);
-                current_state = States.SETUP_PIVOT;
+                set_motor_power(1.0, -1.0, 1.0, -1.0);
+                current_state = States.PIVOT;
                 break;
+
+            case PIVOT:
+                if (motorLeftFront.getCurrentPosition() >= 1300 + x) {
+                    set_motor_power(0.0, 0.0, 0.0, 0.0);
+                    current_state = States.SETUP_APPROACH;
+                    x = motorLeftFront.getCurrentPosition();
+                } else {
+                    telemetry.addData("Test:", "Else_Statement");
+                }
+                break;
+            case SETUP_APPROACH:
+                set_motor_power(1.0,1.0,1.0,1.0);
+                current_state = States.APPROACH;
+                break;
+            case APPROACH:
+                if (motorLeftFront.getCurrentPosition() >= 4000 + x) {
+                    set_motor_power(0.0, 0.0, 0.0, 0.0);
+                    current_state = States.RESTBDRIVE_FORWARD2;
+                    x = motorLeftFront.getCurrentPosition();
+                    break;
+                }
+                else {
+                    telemetry.addData("Test:", "Else_Statement");
+                    break;
+                }
             case RESTBDRIVE_FORWARD2:
                 sleep(500);
                 current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
-            case SETUP_PIVOT:
-                set_motor_power(0.8, -0.8, 0.8, -0.8);
-                current_state = States.PIVOT;
-                break;
+
             case SETUP_DRIVE_FORWARD2:
-                set_motor_power(1.0,1.0,1.0,1.0);
-                current_state = States.DRIVE_FORWARD2;
-                break;
-
-
-            case PIVOT:
-                if (has_Left_encoder_reached(x + 2400)) {
-                    set_motor_power(0, 0, 0, 0);
-                    current_state = States.RESTBDRIVE_FORWARD2;
-                    x = motorLeftFront.getCurrentPosition();
-                    telemetry.addData("Test1", "wait_before_forward");
-                    break;
+                if(y >= 40 && y <= 280){
+                    set_motor_power(0.15, 0.15, 0.15, 0.15);
+                    current_state = States.DRIVEFORWARD2;
                 }
-                else {
-                    telemetry.addData("Test1", "else_statement");
-                    telemetry.addData("Encoder Rear", +motorLeftRear.getCurrentPosition());
+                else{
+                    set_motor_power(0.15, 0.15, 0.15, 0.15);
                 }
                 break;
 
-            case DRIVE_FORWARD2:
-                // Raise the servo with the people
-                /*
-                if (SLOW_INCREMENT) {
-                    for (double position = catapult.getPosition(); position > CATAPULT_UP; position -= CATAPULT_DELTA) {
-                        catapult.setPosition(position);
-                        sleep (250);
-                        telemetry.addData("Catapult Position", position);
+            case DRIVEFORWARD2:
+                if (y >= 40 && y <= 280){
+                    telemetry.addData("Left", motorLeftFront.getCurrentPosition());
+                    telemetry.addData("Right", motorRightFront.getCurrentPosition());
+                    telemetry.addData("Color", "White");
+                    //set_motor_power(0.0,0.0,0.0,0.0);
+                    current_state = States.SHORT_FORWARD;
+                }
+                else
+                {
+                    telemetry.addData("Color", "Not White");
+
+                }
+                break;
+            case SHORT_FORWARD:
+                if (motorLeftFront.getCurrentPosition() < x + 250)
+                {
+                    telemetry.addData("X", "x");
+                }
+                else
+                {
+                    set_motor_power(-0.15,0.15,-0.15,0.15);
+                    current_state = States.FOLLOW_LINE;
+                }
+                plowLeftPosition = PLOWLeft_DOWN;
+                plowRightPosition = PLOWRight_DOWN;
+                break;
+
+            case FOLLOW_LINE:
+                telemetry.addData("Color", "LFWhite");
+                if (ODS.getLightDetectedRaw() < 5) {
+                    y = RGBSensor.argb() / 1000000;
+                    telemetry.addData("Color Actual", y);
+                    if (!hit) {
+                        if (y >= 80 && y <= 280) {
+                            hit = true;
+                        }
+                        telemetry.addData("Loop", "Waiting for hit...");
+                    } else {
+                        if (!(y >= 80 && y <= 280) && hit) {
+                            telemetry.addData("Loop", "Off-Line");
+                            if (!line) {
+                                set_motor_power(-0.1, 0.17, -0.1, 0.17);
+                            }
+                            if (line) {
+                                set_motor_power(0.17, -0.1, 0.17, -0.1);
+                            }
+                            hit = false;
+                            line = !line;
+                            //catLeft.setPosition(.5);
+                        } else {
+                            telemetry.addData("Loop", "On-Line");
+                            //catLeft.setPosition(.6);
+                        }
                     }
-                } else {
-                    catapult.setPosition(CATAPULT_UP);
                 }
-                */
+                else{
+                    x = motorLeftFront.getCurrentPosition();
+                    set_motor_power(0.0,0.0,0.0,0.0);
+                    current_state = States.BACK_DUMP;
 
-                //CatRight up position is .70
-
-                if (has_Left_encoder_reached(x + 1200)) {
-                    set_motor_power(0, 0, 0, 0);
-                    current_state = States.DUMP_PEOPLE;
-                    break;
                 }
-                else {
-                    telemetry.addData("Test1", "else");
+
+                //if (ODS.getLightDetectedRaw() < 50){
+                //    if (rev == 0)
+                //    {
+                //        set_motor_power (0.30,-0.30,0.30,-0.30);
+                //        rev++;
+                //    } else
+                //    if (lineFollow(80, 280, line) == 0)
+                //    {
+                //        if(flag2 ==1)
+                //       {
+                //            rev++;
+                //        }
+                //        flag2 = 0;
+                //        set_motor_power(.20, -.10, .20, -.10);
+                //        line = !line;
+                //    }
+                //    else if (lineFollow(80, 280, line) == 1)
+                //        {
+                //            if(flag2 ==0)
+                //            {
+                //                rev++;
+                //            }
+                //            flag2 = 1;
+                //            set_motor_power(-.10, .20, -.10, .20);
+                //            line = !line;
+                //        }
+                //        else if (flag1 == 2)
+                //    {
+                //
+                //        telemetry.addData("Stuff", "2");
+                //    }
+                //        {
+                //            telemetry.addData("Stuff", "Invalid Line number");
+                //        }
+                //    sleep(250);
+                //}
+                //else{
+                //    set_motor_power(0.0,0.0,0.0,0.0);
+                //    current_state = States.DUMP_PEOPLE;
+                //}*/
+                telemetry.addData("Right is", line);
+                telemetry.addData("Loop", rev);
+                telemetry.addData("Hit", hit);
+
+                floor = 0;
+                break;
+
+            case BACK_UP:
+                catLeft.setPosition(.79);
+                catLeftPosition = .79;
+                sleep(1000);
+                if (side_to_hit == 1) {
+                    telemetry.addData("The Blue Side Is", "Right");
+                }
+                if (side_to_hit == 0) {
+                    telemetry.addData("The Blue Side Is", "Left");
+                }
+                if(motorLeftFront.getCurrentPosition() >= x)
+                {
+                    set_motor_power(-.5,-.5,-.5,-.5);
+                    telemetry.addData("Loop", "Back-Up");
+                    catLeftPosition = CATLeft_DOWN;
+                }
+                else{
+                    set_motor_power(0.0,0.0,0.0,0.0);
+                    if(right == 1 && left == 2){
+                        side_to_hit = 0;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
+                    }
+                    else if(right == 2 && left == 1){
+                        side_to_hit = 1;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
+                    }
+                    else {
+                        telemetry.addData("Loop","Invalid Analysis");
+                        side_to_hit = 2;
+                        telemetry.addData("Left", left);
+                        telemetry.addData("Right", right);
+                    }
+                    current_state = States.STOP;
+
                 }
                 break;
             case DUMP_PEOPLE:
-                //plowLeft.setPosition(0.0196);
-                //plowRight.setPosition(0.9686);
-                catLeft.setPosition(CATLeft_UP);
-                sleep(1000);
-                current_state = States.STOP;
+                if (catLeftPosition > CATLeft_UP) {
+                    catLeftPosition -= .05;
+                    sleep(10);
+                } else {
+                    current_state = States.BACK_UP;
+                }
+                x = motorLeftFront.getCurrentPosition();
                 break;
 
+            case BACK_DUMP:
+                if(motorLeftFront.getCurrentPosition() > x - 500)
+                {
+                    set_motor_power(-.5,-.5,-.5,-.5);
+                }
+                else
+                {
+                    current_state = States.DUMP_PEOPLE;
+                }
+            case STOP:
+                //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
+                set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
+                //telemetry.addData("Enc_Count1", motorLeftRear.getCurrentPosition());
+                //telemetry.addData("Test:", "reset_enc");
+                set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
+                //telemetry.addData("Test:", "run_enc");
+                break;
             default:
-                telemetry.addData("Case", "You all done");
+                ///telemetry.addData("Case", "You're all done");
                 break;
         }
+        telemetry.addData("X",x);
+        telemetry.addData("Left Encoder", motorLeftFront.getCurrentPosition());
+        telemetry.addData("Color Sensor", y);
+        telemetry.addData("Distance Sensor", ODS.getLightDetectedRaw());
+        telemetry.addData("State", current_state);
+        //telemetry.addData("LeftPosition", plowLeftPosition);
+        //telemetry.addData("PlowRightPostition", plowRightPosition);
+
     }
 
     public void set_motor_power(double LR_power, double RR_power, double LF_power, double RF_power) {
@@ -243,62 +540,23 @@ public class DR_Red extends OpMode {
         motorLeftFront.setPower(LF_power);
         motorRightFront.setPower(RF_power);
     }
+
     public void set_drive_mode(DcMotorController.RunMode mode) {
         if (motorLeftRear.getChannelMode() != mode) {
             motorLeftRear.setChannelMode(mode);
         }
-        if (motorRightRear.getChannelMode() != mode)
-        {
+        if (motorRightRear.getChannelMode() != mode) {
             motorRightRear.setChannelMode(mode);
         }
-        if (motorLeftFront.getChannelMode() != mode)
-        {
+        if (motorLeftFront.getChannelMode() != mode) {
             motorLeftFront.setChannelMode(mode);
         }
-        if (motorRightFront.getChannelMode() != mode)
-        {
+        if (motorRightFront.getChannelMode() != mode) {
             motorRightFront.setChannelMode(mode);
         }
 
     }
-    public void run_using_encoders()
-    {
-        if (motorLeftRear != null && motorRightRear != null && motorLeftFront != null && motorRightFront != null)
-        {
-            motorLeftRear.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            motorRightRear.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            motorLeftFront.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-            motorRightFront.setChannelMode(DcMotorController.RunMode.RUN_USING_ENCODERS);
-        }
-    }
-    boolean has_Left_encoder_reached(double e_count)
-    //Has the left rear reached the value of the encoder that was designated?
-    {
-        boolean returnLRe = false;
-        if (motorLeftRear != null)
-        {
-            if (
-                    (Math.abs(motorLeftRear.getCurrentPosition())/2 + Math.abs(motorLeftFront.getCurrentPosition())/2) > e_count)
-            {
-                returnLRe = true;
-            }
-        }
-        return returnLRe;
-    }
-    boolean has_Right_encoder_reached(double e_count)
-    //Has the right rear reached the value of the encoder that was designated?
-    {
-        boolean returnRRe = false;
-        if (motorRightRear != null)
-        {
-            if (((Math.abs(motorRightRear.getCurrentPosition())
-                    + Math.abs(motorRightFront.getCurrentPosition()))/2) > e_count)
-            {
-                returnRRe = true;
-            }
-        }
-        return returnRRe;
-    }
+
     public static void sleep(int amt) // In milliseconds
     {
         double a = System.currentTimeMillis();
@@ -307,21 +565,103 @@ public class DR_Red extends OpMode {
             b = System.currentTimeMillis();
         }
     }
-    public boolean encodersAreZero()
-    {
-        return (motorLeftRear.getCurrentPosition() == 0 &&
-                motorRightRear.getCurrentPosition() == 0 &&
-                motorLeftFront.getCurrentPosition() == 0 &&
-                motorRightFront.getCurrentPosition() == 0);
-    }
-    public void update_encoders()
-    {
+
+
+    public void update_encoders() {
         LR_enc = motorLeftRear.getCurrentPosition();
         RR_enc = motorRightRear.getCurrentPosition();
         LF_enc = motorLeftFront.getCurrentPosition();
         RF_enc = motorRightFront.getCurrentPosition();
     }
 
+    public boolean runUntilColor(double min, double max, double motorPower, int failEncoder) {
+
+        motorLeftRear.setPower(motorPower);
+        motorRightRear.setPower(motorPower);
+        motorLeftFront.setPower(motorPower);
+        motorRightFront.setPower(motorPower);
+
+        y = RGBSensor.argb()/1000000;
+
+        if (y >= min && y <= max) {
+
+            motorLeftRear.setPower(0);
+            motorRightRear.setPower(0);
+            motorLeftFront.setPower(0);
+            motorRightFront.setPower(0);
+            flag = true;
+
+        }
+        /*if (motorLeftRear.getCurrentPosition() >= failEncoder) {
+
+            motorLeftRear.setPower(0);
+            motorRightRear.setPower(0);
+            motorLeftFront.setPower(0);
+            motorRightFront.setPower(0);
+
+        }*/
+        y = RGBSensor.argb()/1000000;
+        telemetry.addData("RGB", RGBSensor.argb() / 1000000);
+        telemetry.addData("Distance", ODS.getLightDetectedRaw());
+        telemetry.addData("Y", y);
+
+        return flag;
+
+    }
+
+    public int lineFollow(double min, double max, boolean right) {
+        y = RGBSensor.argb() / 1000000;
+        if (y >= min && y <= max) {
+            hit = true;
+            flag1 = 2;
+        }
+
+        if (right && hit && !(y >= min && y <= max)) {
+            flag1 = 0;
+            hit = false;
+        }
+        if (!right && hit && !(y >= min && y <= max)) {
+            flag1 = 1;
+            hit = false;
+        }
+
+        return flag1;
+    }
+
+    public float scanForClosest() {
+        float closest = 0;
 
 
+        return closest;
+    }
+
+    public float Color_Run(int distance) {
+        float y;
+        if (distance < 4) {
+            RGBSensor.enableLed(true);
+            // float hsvValues[] = {6F, 6F, 6F};
+            y = RGBSensor.argb();
+            /*final float values[] = hsvValues;
+            final View relativeLayout = ((Activity) hardwareMap.appContext).findViewById(R.id.RelativeLayout);
+            relativeLayout.post(new Runnable() {
+            public void run() {
+            relativeLayout.setBackgroundColor(Color.HSVToColor(0xff, values));
+            }
+            });
+            Color.RGBToHSV(RGBSensor.red() * 8, RGBSensor.green() * 8, RGBSensor.blue() * 8, hsvValues);
+
+            telemetry.addData("Distance_sensor_output", ODS);
+            telemetry.addData("Distance_sensor_output_Raw", distance);
+            //telemetry.addData("Object Reference ", RGBSensor.toString());
+            telemetry.addData("Clear", RGBSensor.alpha());
+            telemetry.addData("Red  ", RGBSensor.red());
+            telemetry.addData("Blue", RGBSensor.blue());
+            telemetry.addData("Green", RGBSensor.green());
+            y = hsvValues[0];*/
+        } else {
+            RGBSensor.enableLed(false);
+            y = 0;
+        }
+        return y;
+    }
 }
