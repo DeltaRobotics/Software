@@ -19,6 +19,9 @@ public class DR_Auto_Setup extends OpMode {
     //Servo catLeft;
     //Servo catRight;
 
+    Servo plowLeft;
+    Servo plowRight;
+
     boolean flag = false;
     boolean flag1 = false;
 
@@ -30,6 +33,11 @@ public class DR_Auto_Setup extends OpMode {
     ColorSensor RGBSensor;
     OpticalDistanceSensor ODS;
 
+    double plowDelta = 0.005;
+    double plowDeltaLeft = plowDelta;
+    double plowDeltaRight = -plowDelta;
+    double plowPositionLeft = 0.5;
+    double plowPositionRight = 0.5;
     ;
 
     @Override
@@ -50,6 +58,13 @@ public class DR_Auto_Setup extends OpMode {
 
         RGBSensor = hardwareMap.colorSensor.get("BottomColorSensor");
         ODS = hardwareMap.opticalDistanceSensor.get("FrontODS");
+        plowLeft = hardwareMap.servo.get("Left_Plow");
+        plowRight = hardwareMap.servo.get("Right_Plow");
+        plowLeft.setPosition(0.957);
+        plowRight.setPosition(0.047);
+        //plowInOut.setPosition(.455);
+        plowPositionLeft = 0.957;
+        plowPositionRight = 0.047;
         winchAngle.setPosition(.64);
         //catLeft.setPosition(0.886);
         //catRight.setPosition(0.09);
@@ -59,6 +74,8 @@ public class DR_Auto_Setup extends OpMode {
     public void loop() {
 
         winchAngle.setPosition(.64);
+        plowLeft.setPosition(.957);
+        plowRight.setPosition(.047);
         //catLeft.setPosition(0.886);
         //catRight.setPosition(0.09);
 
