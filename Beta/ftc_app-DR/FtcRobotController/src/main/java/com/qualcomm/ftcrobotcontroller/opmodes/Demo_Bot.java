@@ -12,17 +12,19 @@ import com.qualcomm.robotcore.util.Range;
 public class Demo_Bot extends OpMode {
     DcMotor motorLeft;
     DcMotor motorRight;
-    Servo servoShoulder;
+    Servo Catapult;
     Servo servoWrist;
     double leftpower;
     double rightpower;
-
+    double Catapultposition;
     public void init()
     {
         motorLeft = hardwareMap.dcMotor.get("motorLeft");
         motorRight = hardwareMap.dcMotor.get("motorRight");
-        servoShoulder = hardwareMap.servo.get("servoShoulder");
-        servoWrist = hardwareMap.servo.get("servoWrist");
+        Catapult = hardwareMap.servo.get("servoCatapult");
+        //servoWrist = hardwareMap.servo.get("servoWrist");
+        Catapult.setPosition(0.5);
+        Catapultposition = 0.5;
     }
 
     public void loop()
@@ -33,6 +35,22 @@ public class Demo_Bot extends OpMode {
         rightpower = Range.clip(rightpower, -1.0, 1.0);
         motorLeft.setPower(leftpower);
         motorRight.setPower(rightpower);
+        Catapult.setPosition(Catapultposition);
+        Catapultposition = Range.clip(Catapultposition, 0.02, 0.98);
+
+        if (gamepad1.a)
+        {
+            Catapultposition -= 0.01;
+        }
+
+        if (gamepad1.y)
+        {
+            Catapultposition += 0.01;
+        }
+        telemetry.addData("Cat Position", Catapultposition);
+        telemetry.addData("right motor", rightpower);
+        telemetry.addData("left motor",   leftpower);
+
 /*
 need to put in servo controls
  */
