@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 /**
  * Created by Delta on 10/10/2015.
  */
-public class DR_Red extends OpModeCamera {
+public class DR_Just_Drive_Blue extends OpModeCamera {
 
     DcMotor motorLeftRear;
     DcMotor motorRightRear;
@@ -44,6 +44,7 @@ public class DR_Red extends OpModeCamera {
     ColorSensor RGBSensor;
     OpticalDistanceSensor ODS;
 
+    int colorWait = 0;
     final private double CATLeft_UP = 0.184;
     final private double CATLeft_DOWN = 0.769;
     final private double CATLeft_DELTA = 0.001;
@@ -62,7 +63,7 @@ public class DR_Red extends OpModeCamera {
     final private double PLOWRight_DELTA = 0.002;
     //final private double PLOWInOut_IN = .4;
     //final private double PLOWInOut_OUT = .83;
-    final private double WINCHAngle_UP = .64;
+    final private double WINCHAngle_UP = .67;
 
     double armVertPosition = 0.988;
     double armGrabPosition = 0.878;
@@ -98,7 +99,7 @@ public class DR_Red extends OpModeCamera {
 
     double white = .15;
 
-    enum States {BACK_DUMP, APPROACH, SETUP_APPROACH, BACK_UP, SHORT_FORWARD, INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
+    enum States {BEACON_MOVE, BACK_DUMP, APPROACH, SETUP_APPROACH, BACK_UP, SHORT_FORWARD, INIT_MOTORS, DRIVE_FORWARD, PIVOT, DRIVEFORWARD2, DUMP_PEOPLE, STOP, RESTBPIVOT, SETUP_PIVOT, RESTBDRIVE_FORWARD2, SETUP_DRIVE_FORWARD2, READ_BEACON, FOLLOW_LINE}
 
     ;
 
@@ -152,7 +153,8 @@ public class DR_Red extends OpModeCamera {
 
         plowLeft.setPosition(PLOWLeft_UP);
         plowRight.setPosition(PLOWRight_UP);
-        line = true; //red side of field
+        winchAngle.setPosition(winchAnglePosition);
+        line = false; //blue side of field
 
     }
 
@@ -281,16 +283,15 @@ public class DR_Red extends OpModeCamera {
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);
                 set_drive_mode(DcMotorController.RunMode.RUN_USING_ENCODERS);
 
-                plowLeftPosition = PLOWLeft_DOWN;
-                plowRightPosition = PLOWRight_DOWN;
                 winchAnglePosition = WINCHAngle_UP;
                 sleep(1000);
                 set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.DRIVE_FORWARD;
+                plowRightPosition = PLOWRight_DOWN;
                 break;
 
             case DRIVE_FORWARD:
-                if (motorLeftFront.getCurrentPosition() >= 2000 + x) {
+                if (motorLeftFront.getCurrentPosition() >= 200 + x) {
                     current_state = States.RESTBPIVOT;
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     x = motorLeftFront.getCurrentPosition();
@@ -307,105 +308,118 @@ public class DR_Red extends OpModeCamera {
                 break;
 
             case PIVOT:
-                if (motorLeftFront.getCurrentPosition() >= 1300 + x) {
+                if (motorLeftFront.getCurrentPosition() >= 1200 + x) {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
                     current_state = States.SETUP_APPROACH;
                     x = motorLeftFront.getCurrentPosition();
+                    plowLeftPosition = PLOWLeft_DOWN;
                 } else {
                     telemetry.addData("Test:", "Else_Statement");
                 }
                 break;
             case SETUP_APPROACH:
-                set_motor_power(1.0,1.0,1.0,1.0);
+                set_motor_power(1.0, 1.0, 1.0, 1.0);
                 current_state = States.APPROACH;
                 break;
             case APPROACH:
-                if (motorLeftFront.getCurrentPosition() >= 4000 + x) {
+                if (motorLeftFront.getCurrentPosition() >=11000 + x) {
                     set_motor_power(0.0, 0.0, 0.0, 0.0);
-                    current_state = States.RESTBDRIVE_FORWARD2;
+                    current_state = States.STOP;
                     x = motorLeftFront.getCurrentPosition();
                     break;
-                }
-                else {
+                } else {
                     telemetry.addData("Test:", "Else_Statement");
                     break;
                 }
+            case SETUP_PIVOT:
+                break;
             case RESTBDRIVE_FORWARD2:
                 sleep(500);
+                x = motorLeftFront.getCurrentPosition();
                 current_state = States.SETUP_DRIVE_FORWARD2;
                 break;
 
             case SETUP_DRIVE_FORWARD2:
-                if(y >= 40 && y <= 280){
-                    set_motor_power(0.15, 0.15, 0.15, 0.15);
-                    current_state = States.DRIVEFORWARD2;
+                if (motorLeftFront.getCurrentPosition() < x + 8000) {
+                    if (y >= 80 && y <= 280) {
+                        set_motor_power(0.15, 0.15, 0.15, 0.15);
+                        current_state = States.SHORT_FORWARD;
+                    } else {
+                        set_motor_power(0.15, 0.15, 0.15, 0.15);
+                    }
                 }
-                else{
-                    set_motor_power(0.15, 0.15, 0.15, 0.15);
+                else
+                {
+                    telemetry.addData("Stop State", "From Encoder Timeout");
+                    current_state = States.STOP;
                 }
                 break;
 
             case DRIVEFORWARD2:
-                if (y >= 40 && y <= 280){
+                if (y >= 80 && y <= 280) {
                     telemetry.addData("Left", motorLeftFront.getCurrentPosition());
                     telemetry.addData("Right", motorRightFront.getCurrentPosition());
                     telemetry.addData("Color", "White");
                     //set_motor_power(0.0,0.0,0.0,0.0);
                     current_state = States.SHORT_FORWARD;
-                }
-                else
-                {
+                } else {
                     telemetry.addData("Color", "Not White");
 
                 }
                 break;
             case SHORT_FORWARD:
-                if (motorLeftFront.getCurrentPosition() < x + 250)
-                {
+                if (motorLeftFront.getCurrentPosition() < x + 250) {
                     telemetry.addData("X", "x");
-                }
-                else
-                {
-                    set_motor_power(-0.15,0.15,-0.15,0.15);
+                } else {
+                    set_motor_power(0.10, -0.10, 0.10, -0.10);
                     current_state = States.FOLLOW_LINE;
                 }
                 plowLeftPosition = PLOWLeft_DOWN;
                 plowRightPosition = PLOWRight_DOWN;
                 break;
 
+            case READ_BEACON:
+                break;
             case FOLLOW_LINE:
+                plowRightPosition = PLOWRight_UP;
+                plowLeftPosition = PLOWLeft_UP;
                 telemetry.addData("Color", "LFWhite");
-                if (ODS.getLightDetectedRaw() < 5) {
-                    y = RGBSensor.argb() / 1000000;
-                    telemetry.addData("Color Actual", y);
-                    if (!hit) {
-                        if (y >= 80 && y <= 280) {
-                            hit = true;
-                        }
-                        telemetry.addData("Loop", "Waiting for hit...");
-                    } else {
-                        if (!(y >= 80 && y <= 280) && hit) {
-                            telemetry.addData("Loop", "Off-Line");
-                            if (!line) {
-                                set_motor_power(-0.1, 0.17, -0.1, 0.17);
+                if (motorLeftFront.getCurrentPosition() < x + 8000) {
+                    if (ODS.getLightDetectedRaw() < 10) {
+                        y = RGBSensor.argb() / 1000000;
+                        telemetry.addData("Color Actual", y);
+                        if (!hit) {
+                            if (y >= 120 && y <= 300) {
+                                hit = true;
                             }
-                            if (line) {
-                                set_motor_power(0.17, -0.1, 0.17, -0.1);
-                            }
-                            hit = false;
-                            line = !line;
-                            //catLeft.setPosition(.5);
+                            telemetry.addData("Loop", "Waiting for hit...");
                         } else {
-                            telemetry.addData("Loop", "On-Line");
-                            //catLeft.setPosition(.6);
+                            if (!(y >= 160 && y <= 280) && hit) {
+                                telemetry.addData("Loop", "Off-Line");
+                                if (!line) {
+                                    set_motor_power(-0.17, 0.25, -0.17, 0.25);
+                                }
+                                if (line) {
+                                    set_motor_power(0.25, -0.17, 0.25, -0.17);
+                                }
+                                hit = false;
+                                line = !line;
+                                //catLeft.setPosition(.5);
+                            } else {
+                                telemetry.addData("Loop", "On-Line");
+                                //catLeft.setPosition(.6);
+                            }
                         }
+                    } else {
+                        x = motorLeftFront.getCurrentPosition();
+                        set_motor_power(0.0, 0.0, 0.0, 0.0);
+                        current_state = States.BACK_DUMP;
+
                     }
                 }
-                else{
-                    x = motorLeftFront.getCurrentPosition();
-                    set_motor_power(0.0,0.0,0.0,0.0);
-                    current_state = States.BACK_DUMP;
-
+                else
+                {
+                    current_state = States.STOP;
                 }
 
                 //if (ODS.getLightDetectedRaw() < 50){
@@ -456,62 +470,70 @@ public class DR_Red extends OpModeCamera {
                 break;
 
             case BACK_UP:
-                catLeft.setPosition(.79);
-                catLeftPosition = .79;
-                sleep(1000);
-                if (side_to_hit == 1) {
-                    telemetry.addData("The Blue Side Is", "Right");
-                }
-                if (side_to_hit == 0) {
-                    telemetry.addData("The Blue Side Is", "Left");
-                }
-                if(motorLeftFront.getCurrentPosition() >= x)
-                {
-                    set_motor_power(-.5,-.5,-.5,-.5);
+                if (motorLeftFront.getCurrentPosition() >= x - 300) {
+                    set_motor_power(-.5, -.5, -.5, -.5);
                     telemetry.addData("Loop", "Back-Up");
-                    catLeftPosition = CATLeft_DOWN;
-                }
-                else{
-                    set_motor_power(0.0,0.0,0.0,0.0);
-                    if(right == 1 && left == 2){
-                        side_to_hit = 0;
-                        telemetry.addData("Left", left);
-                        telemetry.addData("Right", right);
-                    }
-                    else if(right == 2 && left == 1){
-                        side_to_hit = 1;
-                        telemetry.addData("Left", left);
-                        telemetry.addData("Right", right);
-                    }
-                    else {
-                        telemetry.addData("Loop","Invalid Analysis");
-                        side_to_hit = 2;
-                        telemetry.addData("Left", left);
-                        telemetry.addData("Right", right);
-                    }
-                    current_state = States.STOP;
+                    //catLeftPosition = CATLeft_DOWN;
+                } else {
+                    set_motor_power(0.0, 0.0, 0.0, 0.0);
+                    current_state = States.DUMP_PEOPLE;
 
                 }
                 break;
             case DUMP_PEOPLE:
-                if (catLeftPosition > CATLeft_UP) {
+                if (catLeftPosition < CATLeft_UP) {
                     catLeftPosition -= .05;
                     sleep(10);
                 } else {
-                    current_state = States.BACK_UP;
+                    current_state = States.STOP;
                 }
                 x = motorLeftFront.getCurrentPosition();
                 break;
+            case BEACON_MOVE:
+                if (right == 2 && left == 1) {
+                    if (motorLeftFront.getCurrentPosition() < x + 1500)
+                    {
+                        set_motor_power(0.5, 0.5, 0.5, 0.5);
+                    }
+                    else {
+                        set_motor_power(.2, 0, .2, 0);
+                        if (motorLeftFront.getCurrentPosition() >= x + 500) {
+                            set_motor_power(0, 0, 0, 0);
+                            catLeftPosition = CATLeft_DOWN;
+                            current_state = States.BACK_UP;
+                            x = motorLeftFront.getCurrentPosition();
+                            break;
+                        } else {
+                            telemetry.addData("Test:", "Else_Statement");
+                            break;
+                        }
+                    }
 
-            case BACK_DUMP:
-                if(motorLeftFront.getCurrentPosition() > x - 500)
-                {
-                    set_motor_power(-.5,-.5,-.5,-.5);
+                } else if (left == 2 && right == 1) {
+                    if (motorLeftFront.getCurrentPosition() < x + 1500) {
+                        set_motor_power(0.5, 0.5, 0.5, 0.5);
+                    } else {
+                        set_motor_power(0.0, 0.0, 0.0, 0.0);
+                        catLeftPosition = CATLeft_DOWN;
+                        current_state = States.BACK_UP;
+                    }
+                    break;
                 }
                 else
                 {
-                    current_state = States.DUMP_PEOPLE;
+                    current_state = States.BACK_UP;
                 }
+                break;
+
+            case BACK_DUMP:
+                if(motorLeftFront.getCurrentPosition() > x - 1500)
+                {
+                    set_motor_power(-.5,-.5,-.5,-.5);
+                } else {
+                    x = motorLeftFront.getCurrentPosition();
+                    current_state = States.BEACON_MOVE;
+                }
+                break;
             case STOP:
                 //telemetry.addData("Enc_Count", motorLeftRear.getCurrentPosition());
                 set_drive_mode(DcMotorController.RunMode.RESET_ENCODERS);

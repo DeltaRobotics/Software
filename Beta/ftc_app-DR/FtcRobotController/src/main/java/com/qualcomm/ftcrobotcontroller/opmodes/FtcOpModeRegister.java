@@ -31,7 +31,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 package com.qualcomm.ftcrobotcontroller.opmodes;
 
-import com.qualcomm.ftcrobotcontroller.DR_Camera_Testing;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpModeRegister;
 
@@ -56,20 +55,21 @@ public class FtcOpModeRegister implements OpModeRegister {
      * If two or more op modes are registered with the same name, the app will display an error.
      */
 
-    //manager.register("NullOp", NullOp.class);
+    manager.register("NullOp", NullOp.class);
 
     //manager.register("MatrixK9TeleOp", MatrixK9TeleOp.class);
-    //manager.register("K9TeleOp", K9TeleOp.class);
-    //manager.register("K9Line", K9Line.class);
-    //manager.register ("PushBotAuto", PushBotAuto.class);
-    //manager.register ("PushBotManual", PushBotManual.class);
+    manager.register("K9TeleOp", K9TeleOp.class);
+    manager.register("K9Line", K9Line.class);
+    manager.register ("PushBotAuto", PushBotAuto.class);
+    manager.register ("PushBotManual", PushBotManual.class);
 
 
 
     /*
      * Uncomment any of the following lines if you want to register an op mode.
      */
-    //manager.register("MR Gyro Test", MRGyroTest.class);
+    manager.register("MR Gyro Test", MRGyroTest.class);
+    manager.register("Demo_Bot", Demo_Bot.class);
 
     //manager.register("AdafruitRGBExample", AdafruitRGBExample.class);
     //manager.register("ColorSensorDriver", ColorSensorDriver.class);
@@ -97,14 +97,5 @@ public class FtcOpModeRegister implements OpModeRegister {
     //manager.register("PushBotDriveTouch", PushBotDriveTouch.java);
     //manager.register("PushBotIrSeek", PushBotIrSeek.java);
     //manager.register("PushBotSquare", PushBotSquare.java);
-
-    manager.register("DR_Blue", DR_Blue.class);
-    manager.register("DR_Tank_Test", DR_Tank_Test.class);
-    //manager.register("GyroTestOpMode", GyroTestOpMode.class);
-    manager.register("Sensor_Test", Sensor_Test.class);
-    manager.register("DR_Red", DR_Red.class);
-    manager.register("DR_Camera_Testing", DR_Camera_Testing.class);
-    manager.register("DR_Just_Drive", DR_Just_Drive.class);
-    manager.register("DR_Auto_Setup", DR_Auto_Setup.class);
   }
 }
