@@ -23,8 +23,8 @@ public class Demo_Bot extends OpMode {
         motorRight = hardwareMap.dcMotor.get("motorRight");
         Catapult = hardwareMap.servo.get("servoCatapult");
         //servoWrist = hardwareMap.servo.get("servoWrist");
-        Catapult.setPosition(0.5);
-        Catapultposition = 0.5;
+        Catapultposition = 0.85;
+        Catapult.setPosition(Catapultposition);
     }
 
     public void loop()
@@ -33,19 +33,27 @@ public class Demo_Bot extends OpMode {
         rightpower = gamepad1.right_stick_y;
         leftpower = Range.clip(leftpower, -1.0, 1.0);
         rightpower = Range.clip(rightpower, -1.0, 1.0);
-        motorLeft.setPower(leftpower);
+        motorLeft.setPower(-leftpower);
         motorRight.setPower(rightpower);
         Catapult.setPosition(Catapultposition);
-        Catapultposition = Range.clip(Catapultposition, 0.02, 0.98);
+        Catapultposition = Range.clip(Catapultposition, 0.1, 0.85);
 
         if (gamepad1.a)
+        {
+            Catapultposition += 0.01;
+        }
+        if (gamepad1.y)
         {
             Catapultposition -= 0.01;
         }
 
-        if (gamepad1.y)
+        if (gamepad2.a)
         {
             Catapultposition += 0.01;
+        }
+        if (gamepad2.y)
+        {
+            Catapultposition -= 0.01;
         }
         telemetry.addData("Cat Position", Catapultposition);
         telemetry.addData("right motor", rightpower);
